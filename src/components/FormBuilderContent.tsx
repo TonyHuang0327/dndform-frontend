@@ -9,7 +9,7 @@ import FormCanvas, { CANVAS_ID } from "@/components/FormCanvas";
 import FormPreview from "@/components/FormPreview";
 import { createField } from "@/types/form";
 import type { FormField } from "@/types/form";
-import { Box, Paper, Tab, Tabs } from "@mui/material";
+import { Box, Button, Paper, Tab, Tabs } from "@mui/material";
 
 type Mode = "design" | "preview";
 
@@ -49,6 +49,28 @@ export default function FormBuilderContent() {
     setFields((prev) =>
       prev.map((f) => (f.id === id ? ({ ...f, ...patch } as FormField) : f))
     );
+  }
+
+  async function handleExportJson() {
+    const json = JSON.stringify(fields, null, 2);
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(json);
+        alert("已複製 JSON 到剪貼簿");
+        return;
+      }
+    } catch {
+      // 若寫入剪貼簿失敗則改用下載方式
+    }
+
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "form-schema.json";
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -98,7 +120,17 @@ export default function FormBuilderContent() {
           </Box>
         </DndContext>
       ) : (
-        <Box sx={{ mt: 1 }}>
+        <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleExportJson}
+              disabled={fields.length === 0}
+            >
+              匯出 JSON
+            </Button>
+          </Box>
           <FormPreview fields={fields} />
         </Box>
       )}
