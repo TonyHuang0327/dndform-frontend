@@ -3,7 +3,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
-import { Card, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 const CANVAS_ID = "canvas";
 
@@ -36,22 +37,39 @@ export default function SortableFieldItem({
     <Card
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      onClick={() => onSelect(field.id)}
       sx={{
         p: 1.5,
-        cursor: "grab",
         opacity: isDragging ? 0.5 : 1,
         border: 2,
         borderColor: isSelected ? "primary.main" : "transparent",
-        "&:active": { cursor: "grabbing" },
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
       }}
     >
-      <Typography variant="body2">{field.label}</Typography>
-      <Typography variant="caption" color="text.secondary">
-        {field.type}
-      </Typography>
+      {/* 拖拉把手：只有此區可拖動排序 */}
+      <Box
+        {...attributes}
+        {...listeners}
+        sx={{
+          cursor: "grab",
+          color: "text.secondary",
+          "&:active": { cursor: "grabbing" },
+        }}
+        aria-label="拖動排序"
+      >
+        <DragIndicatorIcon fontSize="small" />
+      </Box>
+      {/* 卡片主體：點擊選取並顯示屬性編輯 */}
+      <Box
+        onClick={() => onSelect(field.id)}
+        sx={{ flex: 1, cursor: "pointer" }}
+      >
+        <Typography variant="body2">{field.label}</Typography>
+        <Typography variant="caption" color="text.secondary">
+          {field.type}
+        </Typography>
+      </Box>
     </Card>
   );
 }
