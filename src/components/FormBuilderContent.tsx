@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import ComponentPalette from "@/components/ComponentPalette";
@@ -10,6 +10,7 @@ import FormPreview from "@/components/FormPreview";
 import { createField } from "@/types/form";
 import type { FormField } from "@/types/form";
 import { Box, Button, Paper, Tab, Tabs } from "@mui/material";
+import { useReactToPrint } from "react-to-print";
 
 type Mode = "design" | "preview";
 
@@ -91,6 +92,11 @@ export default function FormBuilderContent() {
       URL.revokeObjectURL(url);
     }, 1000);
   }
+  const previewRef = useRef<HTMLDivElement>(null);
+  const handlePrintPreview = useReactToPrint({
+    contentRef: previewRef,
+    documentTitle: "form-preview",
+  });
 
   return (
     <Box sx={{ minHeight: "100vh", p: 2, boxSizing: "border-box" }}>
@@ -145,13 +151,15 @@ export default function FormBuilderContent() {
             <Button
               variant="outlined"
               size="small"
-              onClick={handleExportJson}
+              onClick={handlePrintPreview}
               disabled={fields.length === 0}
             >
-              匯出 JSON
+              匯出PDF
             </Button>
           </Box>
-          <FormPreview fields={fields} />
+          <div ref={previewRef}>
+            <FormPreview fields={fields} />
+          </div>
         </Box>
       )}
     </Box>
