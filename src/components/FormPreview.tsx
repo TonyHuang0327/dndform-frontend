@@ -98,7 +98,7 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               sx={{ borderBottom: "1px solid black", width: "100%" }}
             >
               <FieldLabel field={field} />
-              <Grid size={9} sx={{ p: 1 }}>
+              <Grid size={10} sx={{ p: 1 }}>
                 <Checkbox
                   defaultChecked={field.defaultChecked}
                   required={field.required}
