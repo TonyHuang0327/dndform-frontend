@@ -75,7 +75,9 @@ export default function FormBuilderContent() {
     a.href = url;
     a.download = "form-schema.json";
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000);
   }
 
   return (
@@ -104,22 +106,22 @@ export default function FormBuilderContent() {
                 gap: 2,
               }}
             >
-              {selectedId && (() => {
-                const selected = fields.find((f) => f.id === selectedId);
-                return selected ? (
-                  <Paper sx={{ p: 2 }}>
-                    <FieldPropertyEditor
-                      field={selected}
-                      onChange={handleChange}
-                    />
-                  </Paper>
-                ) : null;
-              })()}
+              {selectedId &&
+                (() => {
+                  const selected = fields.find((f) => f.id === selectedId);
+                  return selected ? (
+                    <Paper sx={{ p: 2 }}>
+                      <FieldPropertyEditor
+                        field={selected}
+                        onChange={handleChange}
+                      />
+                    </Paper>
+                  ) : null;
+                })()}
               <FormCanvas
                 fields={fields}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
-                onChange={handleChange}
                 onDelete={handleDelete}
               />
             </Box>
@@ -143,4 +145,3 @@ export default function FormBuilderContent() {
     </Box>
   );
 }
-

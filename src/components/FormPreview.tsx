@@ -71,10 +71,10 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "radio" && "options" in field) {
           return (
             <FormControl key={field.id}>
-              <FormLabel id="label-id">{field.label}</FormLabel>
+              <FormLabel id={`${field.id}-label`}>{field.label}</FormLabel>
               <RadioGroup
                 defaultValue={field.options[0]?.value}
-                aria-labelledby="label-id"
+                aria-labelledby={`${field.id}-label`}
               >
                 {field.options.map((opt) => (
                   <FormControlLabel
@@ -92,9 +92,9 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "select" && "options" in field) {
           return (
             <FormControl key={field.id} size="small" fullWidth>
-              <InputLabel id="select-label">{field.label}</InputLabel>
+              <InputLabel id={`${field.id}-label`}>{field.label}</InputLabel>
               <Select
-                labelId="select-label"
+                labelId={`${field.id}-label`}
                 defaultValue={field.options[0]?.value ?? ""}
                 displayEmpty
                 required={field.required}

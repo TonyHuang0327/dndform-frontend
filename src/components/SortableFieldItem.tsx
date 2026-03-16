@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
-import { Box, ButtonBase, Card, IconButton, Typography } from "@mui/material";
+import { ButtonBase, Card, IconButton, Typography } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -51,7 +51,7 @@ export default function SortableFieldItem({
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}
-      <Box
+      <IconButton
         {...attributes}
         {...listeners}
         sx={{
@@ -62,11 +62,17 @@ export default function SortableFieldItem({
         aria-label="拖動排序"
       >
         <DragIndicatorIcon fontSize="small" />
-      </Box>
+      </IconButton>
       {/* 卡片主體：點擊選取並顯示屬性編輯 */}
       <ButtonBase
         onClick={() => onSelect(field.id)}
-        sx={{ flex: 1, cursor: "pointer" }}
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          textAlign: "left",
+        }}
       >
         <Typography variant="body2">{field.label}</Typography>
         <Typography variant="caption" color="text.secondary">

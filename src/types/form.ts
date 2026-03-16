@@ -62,7 +62,7 @@ export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
     label: DEFAULT_LABELS[type],
   }));
 
-const DEFAULT_OPTION: FormFieldOption = { value: "opt1", label: "選項 1" };
+export const DEFAULT_OPTION: FormFieldOption = { value: "opt1", label: "選項 1" };
 
 function createOptions(): FormFieldOption[] {
   return [{ ...DEFAULT_OPTION }];

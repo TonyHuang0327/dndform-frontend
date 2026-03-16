@@ -15,7 +15,6 @@ export interface FormCanvasProps {
   fields: FormField[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onChange: (id: string, patch: Partial<FormField>) => void;
   onDelete: (id: string) => void;
 }
 

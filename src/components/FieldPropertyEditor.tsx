@@ -1,6 +1,10 @@
 "use client";
 
-import type { FormField, FormFieldOption } from "@/types/form";
+import {
+  DEFAULT_OPTION,
+  type FormField,
+  type FormFieldOption,
+} from "@/types/form";
 import {
   Box,
   Checkbox,
@@ -11,8 +15,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-
-const DEFAULT_OPTION: FormFieldOption = { value: "opt1", label: "選項 1" };
 
 export interface FieldPropertyEditorProps {
   field: FormField;
@@ -30,12 +32,13 @@ export default function FieldPropertyEditor({
   }
 
   const hasPlaceholder =
-    field.type === "text" || field.type === "textarea" || field.type === "number";
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "number";
   const hasOptions = field.type === "radio" || field.type === "select";
 
   function handleOptionsChange(newOptions: FormFieldOption[]) {
-    const options =
-      newOptions.length === 0 ? [DEFAULT_OPTION] : newOptions;
+    const options = newOptions.length === 0 ? [DEFAULT_OPTION] : newOptions;
     update({ options } as Partial<FormField>);
   }
 
@@ -54,13 +57,13 @@ export default function FieldPropertyEditor({
 
   function addOption() {
     if (!hasOptions || !("options" in field)) return;
-  
+
     const used = new Set(field.options.map((opt) => opt.value));
     let next = field.options.length + 1;
     while (used.has(`opt${next}`)) {
       next += 1;
     }
-  
+
     handleOptionsChange([
       ...field.options,
       { value: `opt${next}`, label: `選項 ${next}` },
@@ -105,7 +108,11 @@ export default function FieldPropertyEditor({
         <FormControlLabel
           control={
             <Checkbox
-              checked={"defaultChecked" in field ? field.defaultChecked ?? false : false}
+              checked={
+                "defaultChecked" in field
+                  ? field.defaultChecked ?? false
+                  : false
+              }
               onChange={(e) => update({ defaultChecked: e.target.checked })}
             />
           }
@@ -120,7 +127,7 @@ export default function FieldPropertyEditor({
           </Typography>
           {field.options.map((opt, i) => (
             <Box
-              key={i}
+              key={opt.value}
               sx={{
                 display: "flex",
                 gap: 1,
