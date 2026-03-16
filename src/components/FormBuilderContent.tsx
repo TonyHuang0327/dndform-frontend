@@ -29,8 +29,20 @@ export default function FormBuilderContent() {
       | undefined;
 
     if (data?.source === "palette" && data?.type) {
-      setFields((prev) => [...prev, createField(data.type!)]);
-      return;
+      const insertIndex =
+        over.id === CANVAS_ID
+          ? fields.length
+          : fields.findIndex((f) => f.id === over.id);
+      const newField = createField(data.type);
+      setFields((prev) => {
+        const copy = [...prev];
+        copy.splice(
+          insertIndex === -1 ? copy.length : insertIndex,
+          0,
+          newField
+        );
+        return copy;
+      });
     }
 
     const oldIndex = fields.findIndex((f) => f.id === active.id);
