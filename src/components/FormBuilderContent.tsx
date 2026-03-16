@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import ComponentPalette from "@/components/ComponentPalette";
@@ -10,6 +10,7 @@ import FormPreview from "@/components/FormPreview";
 import { createField } from "@/types/form";
 import type { FormField } from "@/types/form";
 import { Box, Button, Paper, Tab, Tabs } from "@mui/material";
+import { useReactToPrint } from "react-to-print";
 
 type Mode = "design" | "preview";
 
@@ -67,30 +68,11 @@ export default function FormBuilderContent() {
     setFields((prev) => prev.filter((f) => f.id !== id));
     setSelectedId((current) => (current === id ? null : current));
   }
-
-  async function handleExportJson() {
-    const json = JSON.stringify(fields, null, 2);
-
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(json);
-        alert("已複製 JSON 到剪貼簿");
-        return;
-      }
-    } catch {
-      // 若寫入剪貼簿失敗則改用下載方式
-    }
-
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "form-schema.json";
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
-  }
+  const previewRef = useRef<HTMLDivElement>(null);
+  const handlePrintPreview = useReactToPrint({
+    contentRef: previewRef,
+    documentTitle: "form-preview",
+  });
 
   return (
     <Box sx={{ minHeight: "100vh", p: 2, boxSizing: "border-box" }}>
@@ -145,13 +127,15 @@ export default function FormBuilderContent() {
             <Button
               variant="outlined"
               size="small"
-              onClick={handleExportJson}
+              onClick={() => handlePrintPreview()}
               disabled={fields.length === 0}
             >
-              匯出 JSON
+              列印 / 儲存為PDF
             </Button>
           </Box>
-          <FormPreview fields={fields} />
+          <div ref={previewRef}>
+            <FormPreview fields={fields} />
+          </div>
         </Box>
       )}
     </Box>
