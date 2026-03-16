@@ -4,10 +4,7 @@ import type { FormField } from "@/types/form";
 import {
   Box,
   Checkbox,
-  FormControl,
   FormControlLabel,
-  FormLabel,
-  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
@@ -16,6 +13,22 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
+const FieldLabel = ({ field }: { field: FormField }) => {
+  return (
+    <Grid
+      size={2}
+      sx={{
+        borderRight: "1px solid black",
+        display: "flex",
+        pl: 1,
+        alignItems: "center",
+      }}
+    >
+      <Typography id={`${field.id}-label`}>{field.label}</Typography>
+    </Grid>
+  );
+};
 
 export interface FormPreviewProps {
   fields: FormField[];
@@ -55,18 +68,8 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               key={field.id}
               sx={{ borderBottom: "1px solid black", width: "100%" }}
             >
-              <Grid
-                size={2}
-                sx={{
-                  borderRight: "1px solid black",
-                  display: "flex",
-                  pl: 1,
-                  alignItems: "center",
-                }}
-              >
-                <Typography>{field.label}</Typography>
-              </Grid>
-              <Grid size={9} sx={{ p: 1 }}>
+              <FieldLabel field={field} />
+              <Grid size={10} sx={{ p: 1 }}>
                 <TextField
                   fullWidth
                   type={field.type === "number" ? "number" : "text"}
@@ -94,17 +97,7 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               key={field.id}
               sx={{ borderBottom: "1px solid black", width: "100%" }}
             >
-              <Grid
-                size={2}
-                sx={{
-                  borderRight: "1px solid black",
-                  display: "flex",
-                  pl: 1,
-                  alignItems: "center",
-                }}
-              >
-                <Typography>{field.label}</Typography>
-              </Grid>
+              <FieldLabel field={field} />
               <Grid size={9} sx={{ p: 1 }}>
                 <Checkbox
                   defaultChecked={field.defaultChecked}
@@ -122,18 +115,8 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               key={field.id}
               sx={{ borderBottom: "1px solid black", width: "100%" }}
             >
-              <Grid
-                size={2}
-                sx={{
-                  borderRight: "1px solid black",
-                  display: "flex",
-                  pl: 1,
-                  alignItems: "center",
-                }}
-              >
-                <Typography>{field.label}</Typography>
-              </Grid>
-              <Grid size={9} sx={{ p: 1 }}>
+              <FieldLabel field={field} />
+              <Grid size={10} sx={{ p: 1 }}>
                 <RadioGroup
                   defaultValue={field.options[0]?.value}
                   aria-labelledby={`${field.id}-label`}
@@ -159,18 +142,8 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               key={field.id}
               sx={{ borderBottom: "1px solid black", width: "100%" }}
             >
-              <Grid
-                size={2}
-                sx={{
-                  borderRight: "1px solid black",
-                  display: "flex",
-                  pl: 1,
-                  alignItems: "center",
-                }}
-              >
-                <Typography>{field.label}</Typography>
-              </Grid>
-              <Grid size={9} sx={{ p: 1 }}>
+              <FieldLabel field={field} />
+              <Grid size={10} sx={{ p: 1 }}>
                 <Select
                   defaultValue={field.options[0]?.value}
                   aria-labelledby={`${field.id}-label`}
