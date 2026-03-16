@@ -3,8 +3,9 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
-import { Box, Card, Typography } from "@mui/material";
+import { Box, ButtonBase, Card, IconButton, Typography } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const CANVAS_ID = "canvas";
 
@@ -12,12 +13,14 @@ export interface SortableFieldItemProps {
   field: FormField;
   isSelected: boolean;
   onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function SortableFieldItem({
   field,
   isSelected,
   onSelect,
+  onDelete,
 }: SortableFieldItemProps) {
   const {
     attributes,
@@ -61,7 +64,7 @@ export default function SortableFieldItem({
         <DragIndicatorIcon fontSize="small" />
       </Box>
       {/* 卡片主體：點擊選取並顯示屬性編輯 */}
-      <Box
+      <ButtonBase
         onClick={() => onSelect(field.id)}
         sx={{ flex: 1, cursor: "pointer" }}
       >
@@ -69,7 +72,15 @@ export default function SortableFieldItem({
         <Typography variant="caption" color="text.secondary">
           {field.type}
         </Typography>
-      </Box>
+      </ButtonBase>
+      {/* 刪除欄位 */}
+      <IconButton
+        size="small"
+        onClick={() => onDelete(field.id)}
+        aria-label="刪除欄位"
+      >
+        <DeleteIcon fontSize="small" />
+      </IconButton>
     </Card>
   );
 }

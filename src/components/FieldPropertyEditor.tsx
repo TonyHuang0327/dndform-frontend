@@ -54,7 +54,13 @@ export default function FieldPropertyEditor({
 
   function addOption() {
     if (!hasOptions || !("options" in field)) return;
-    const next = field.options.length + 1;
+  
+    const used = new Set(field.options.map((opt) => opt.value));
+    let next = field.options.length + 1;
+    while (used.has(`opt${next}`)) {
+      next += 1;
+    }
+  
     handleOptionsChange([
       ...field.options,
       { value: `opt${next}`, label: `選項 ${next}` },

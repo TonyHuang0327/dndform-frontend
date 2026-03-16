@@ -56,6 +56,12 @@ const DEFAULT_LABELS: Record<FormFieldType, string> = {
   select: "下拉選單",
 };
 
+export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
+  (Object.keys(DEFAULT_LABELS) as FormFieldType[]).map((type) => ({
+    type,
+    label: DEFAULT_LABELS[type],
+  }));
+
 const DEFAULT_OPTION: FormFieldOption = { value: "opt1", label: "選項 1" };
 
 function createOptions(): FormFieldOption[] {

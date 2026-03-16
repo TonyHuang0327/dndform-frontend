@@ -16,12 +16,14 @@ export interface FormCanvasProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function FormCanvas({
   fields,
   selectedId,
   onSelect,
+  onDelete,
 }: FormCanvasProps) {
   const { setNodeRef, isOver } = useDroppable({ id: CANVAS_ID });
 
@@ -57,6 +59,7 @@ export default function FormCanvas({
                 field={field}
                 isSelected={selectedId === field.id}
                 onSelect={onSelect}
+                onDelete={onDelete}
               />
             ))}
           </Box>

@@ -1,32 +1,13 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import type { FormFieldType } from "@/types/form";
+import { FIELD_TYPE_DEFINITIONS, type FormFieldType } from "@/types/form";
 import { Box, Paper, Typography } from "@mui/material";
 
-const FIELD_TYPES: { type: FormFieldType; label: string }[] = [
-  { type: "text", label: "單行文字" },
-  { type: "textarea", label: "多行文字" },
-  { type: "number", label: "數字" },
-  { type: "checkbox", label: "勾選框" },
-  { type: "radio", label: "單選" },
-  { type: "select", label: "下拉選單" },
-];
 
-function PaletteItem({
-  type,
-  label,
-}: {
-  type: FormFieldType;
-  label: string;
-}) {
+function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
   const id = `palette-${type}`;
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    isDragging,
-  } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
     data: { type, source: "palette" as const },
   });
@@ -63,7 +44,7 @@ export default function ComponentPalette() {
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
         元件庫
       </Typography>
-      {FIELD_TYPES.map(({ type, label }) => (
+      {FIELD_TYPE_DEFINITIONS.map(({ type, label }) => (
         <PaletteItem key={type} type={type} label={label} />
       ))}
     </Box>

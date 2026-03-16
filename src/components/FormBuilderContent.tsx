@@ -51,6 +51,11 @@ export default function FormBuilderContent() {
     );
   }
 
+  function handleDelete(id: string) {
+    setFields((prev) => prev.filter((f) => f.id !== id));
+    setSelectedId((current) => (current === id ? null : current));
+  }
+
   async function handleExportJson() {
     const json = JSON.stringify(fields, null, 2);
 
@@ -115,6 +120,7 @@ export default function FormBuilderContent() {
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 onChange={handleChange}
+                onDelete={handleDelete}
               />
             </Box>
           </Box>

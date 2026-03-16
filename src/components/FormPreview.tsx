@@ -7,6 +7,7 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
@@ -33,7 +34,11 @@ export default function FormPreview({ fields }: FormPreviewProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {fields.map((field) => {
-        if (field.type === "text" || field.type === "textarea" || field.type === "number") {
+        if (
+          field.type === "text" ||
+          field.type === "textarea" ||
+          field.type === "number"
+        ) {
           return (
             <TextField
               key={field.id}
@@ -52,7 +57,12 @@ export default function FormPreview({ fields }: FormPreviewProps) {
           return (
             <FormControlLabel
               key={field.id}
-              control={<Checkbox defaultChecked={field.defaultChecked} />}
+              control={
+                <Checkbox
+                  defaultChecked={field.defaultChecked}
+                  required={field.required}
+                />
+              }
               label={field.label}
             />
           );
@@ -61,13 +71,16 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "radio" && "options" in field) {
           return (
             <FormControl key={field.id}>
-              <FormLabel>{field.label}</FormLabel>
-              <RadioGroup defaultValue={field.options[0]?.value}>
+              <FormLabel id="label-id">{field.label}</FormLabel>
+              <RadioGroup
+                defaultValue={field.options[0]?.value}
+                aria-labelledby="label-id"
+              >
                 {field.options.map((opt) => (
                   <FormControlLabel
                     key={opt.value}
                     value={opt.value}
-                    control={<Radio />}
+                    control={<Radio required={field.required} />}
                     label={opt.label}
                   />
                 ))}
@@ -79,8 +92,13 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "select" && "options" in field) {
           return (
             <FormControl key={field.id} size="small" fullWidth>
-              <FormLabel sx={{ mb: 0.5 }}>{field.label}</FormLabel>
-              <Select defaultValue={field.options[0]?.value ?? ""} displayEmpty>
+              <InputLabel id="select-label">{field.label}</InputLabel>
+              <Select
+                labelId="select-label"
+                defaultValue={field.options[0]?.value ?? ""}
+                displayEmpty
+                required={field.required}
+              >
                 {field.options.map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -96,4 +114,3 @@ export default function FormPreview({ fields }: FormPreviewProps) {
     </Box>
   );
 }
-
