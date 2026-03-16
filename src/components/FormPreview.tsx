@@ -72,6 +72,7 @@ export default function FormPreview({ fields }: FormPreviewProps) {
               <Grid size={10} sx={{ p: 1 }}>
                 <TextField
                   fullWidth
+                  aria-labelledby={`${field.id}-label`}
                   type={field.type === "number" ? "number" : "text"}
                   multiline={field.type === "textarea"}
                   minRows={field.type === "textarea" ? 3 : undefined}
@@ -102,6 +103,7 @@ export default function FormPreview({ fields }: FormPreviewProps) {
                 <Checkbox
                   defaultChecked={field.defaultChecked}
                   required={field.required}
+                  aria-labelledby={`${field.id}-label`}
                 />
               </Grid>
             </Grid>
@@ -147,6 +149,7 @@ export default function FormPreview({ fields }: FormPreviewProps) {
                 <Select
                   defaultValue={field.options[0]?.value}
                   aria-labelledby={`${field.id}-label`}
+                  required={field.required}
                 >
                   {field.options.map((opt) => (
                     <MenuItem key={opt.value} value={opt.value}>
