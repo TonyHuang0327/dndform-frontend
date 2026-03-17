@@ -18,7 +18,7 @@ export default function FormBuilderContent() {
   const [fields, setFields] = useState<FormField[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("design");
-  const [formTitle, setFormTitle] = useState("");
+  const [formTitle, setFormTitle] = useState("未命名表單");
 
   function handleDragEnd(event: DragEndEvent) {
     if (mode !== "design") return;
