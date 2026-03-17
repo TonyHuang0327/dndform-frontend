@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { FormField } from "@/types/form";
-import { Box, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import SortableFieldItem, { CANVAS_ID } from "./SortableFieldItem";
 
 export { CANVAS_ID };
@@ -16,6 +16,7 @@ export interface FormCanvasProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
+  onChange: (id: string, patch: Partial<FormField>) => void;
 }
 
 export default function FormCanvas({
@@ -23,6 +24,7 @@ export default function FormCanvas({
   selectedId,
   onSelect,
   onDelete,
+  onChange,
 }: FormCanvasProps) {
   const { setNodeRef, isOver } = useDroppable({ id: CANVAS_ID });
 
@@ -51,17 +53,20 @@ export default function FormCanvas({
           items={fields.map((f) => f.id)}
           strategy={verticalListSortingStrategy}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Grid container spacing={2}>
             {fields.map((field) => (
-              <SortableFieldItem
-                key={field.id}
-                field={field}
-                isSelected={selectedId === field.id}
-                onSelect={onSelect}
-                onDelete={onDelete}
-              />
+              <Grid size={field.span} key={field.id}>
+                <SortableFieldItem
+                  key={field.id}
+                  field={field}
+                  isSelected={selectedId === field.id}
+                  onSelect={onSelect}
+                  onDelete={onDelete}
+                  onChange={onChange}
+                />
+              </Grid>
             ))}
-          </Box>
+          </Grid>
         </SortableContext>
       )}
     </Box>

@@ -21,7 +21,7 @@ const FieldLabel = ({ field }: { field: FormField }) => {
       sx={{
         borderRight: "1px solid black",
         display: "flex",
-        pl: 1,
+        p: 1,
         alignItems: "center",
       }}
     >
@@ -46,13 +46,11 @@ export default function FormPreview({ fields }: FormPreviewProps) {
   }
 
   return (
-    <Box
+    <Grid
+      container
+      spacing={0}
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 0,
-        borderTop: "1px solid black",
-        borderRight: "1px solid black",
+        borderBottom: "1px solid black",
         borderLeft: "1px solid black",
       }}
     >
@@ -63,43 +61,63 @@ export default function FormPreview({ fields }: FormPreviewProps) {
           field.type === "number"
         ) {
           return (
-            <Grid
-              container
-              key={field.id}
-              sx={{ borderBottom: "1px solid black", width: "100%" }}
-            >
-              <FieldLabel field={field} />
-              <Grid size={10} sx={{ p: 1 }}>
-                <TextField
-                  fullWidth
-                  aria-labelledby={`${field.id}-label`}
-                  type={field.type === "number" ? "number" : "text"}
-                  multiline={field.type === "textarea"}
-                  minRows={field.type === "textarea" ? 3 : undefined}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                  size="small"
-                  variant="outlined"
+              <Grid
+                container
+                spacing={0}
+                key={field.id}
+                size={field.span ?? 12}
+                sx={{
+                  borderTop: "1px solid black",
+                  borderRight: "1px solid black",
+                }}
+              >
+                <FieldLabel field={field} />
+                <Grid
+                  size={10}
                   sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
+                    p: 1,
                   }}
-                />
+                >
+                  <TextField
+                    fullWidth
+                    aria-labelledby={`${field.id}-label`}
+                    type={field.type === "number" ? "number" : "text"}
+                    multiline={field.type === "textarea"}
+                    minRows={field.type === "textarea" ? 3 : undefined}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                    }}
+                  />
+                </Grid>
               </Grid>
-            </Grid>
           );
         }
 
         if (field.type === "checkbox") {
           return (
             <Grid
-              container
               key={field.id}
-              sx={{ borderBottom: "1px solid black", width: "100%" }}
+              sx={{
+                borderTop: "1px solid black",
+                borderRight: "1px solid black",
+              }}
+              size={field.span ?? 12}
+              spacing={0}
+              container
             >
               <FieldLabel field={field} />
-              <Grid size={10} sx={{ p: 1 }}>
+              <Grid
+                size={10}
+                sx={{
+                  p: 1,
+                }}
+              >
                 <Checkbox
                   defaultChecked={field.defaultChecked}
                   required={field.required}
@@ -113,12 +131,22 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "radio" && "options" in field) {
           return (
             <Grid
-              container
               key={field.id}
-              sx={{ borderBottom: "1px solid black", width: "100%" }}
+              sx={{
+                borderTop: "1px solid black",
+                borderRight: "1px solid black",
+              }}
+              size={field.span ?? 12}
+              spacing={0}
+              container
             >
               <FieldLabel field={field} />
-              <Grid size={10} sx={{ p: 1 }}>
+              <Grid
+                size={10}
+                sx={{
+                  p: 1,
+                }}
+              >
                 <RadioGroup
                   defaultValue={field.options[0]?.value}
                   aria-labelledby={`${field.id}-label`}
@@ -140,12 +168,22 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         if (field.type === "select" && "options" in field) {
           return (
             <Grid
-              container
               key={field.id}
-              sx={{ borderBottom: "1px solid black", width: "100%" }}
+              sx={{
+                borderTop: "1px solid black",
+                borderRight: "1px solid black",
+              }}
+              size={field.span ?? 12}
+              spacing={0}
+              container
             >
               <FieldLabel field={field} />
-              <Grid size={10} sx={{ p: 1 }}>
+              <Grid
+                size={10}
+                sx={{
+                  p: 1,
+                }}
+              >
                 <Select
                   defaultValue={field.options[0]?.value}
                   aria-labelledby={`${field.id}-label`}
@@ -164,6 +202,6 @@ export default function FormPreview({ fields }: FormPreviewProps) {
 
         return null;
       })}
-    </Box>
+    </Grid>
   );
 }

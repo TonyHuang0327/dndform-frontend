@@ -22,6 +22,8 @@ export interface FormFieldBase {
   type: FormFieldType;
   label: string;
   required?: boolean;
+  /** 版面寬度：1~12，預設 12（整行） */
+  span?: number;
 }
 
 /** 單行／多行／數字：可有 placeholder */
@@ -75,17 +77,25 @@ function createOptions(): FormFieldOption[] {
 export function createField(type: FormFieldType): FormField {
   const id = crypto.randomUUID();
   const label = DEFAULT_LABELS[type];
+  const span = 12;
 
   switch (type) {
     case "text":
     case "textarea":
     case "number":
-      return { id, type, label, required: false, placeholder: "" };
+      return { id, type, label, required: false, placeholder: "", span };
     case "checkbox":
-      return { id, type, label, required: false, defaultChecked: false };
+      return { id, type, label, required: false, defaultChecked: false, span };
     case "radio":
     case "select":
-      return { id, type, label, required: false, options: createOptions() };
+      return {
+        id,
+        type,
+        label,
+        required: false,
+        options: createOptions(),
+        span,
+      };
     default: {
       const _: never = type;
       return _;
