@@ -133,7 +133,7 @@ export default function SortableFieldItem({
           field.selectedOcr &&
           field.selectedOcr.length > 0 && (
             <Typography variant="caption" color="text.secondary">
-              {field.selectedOcr?.map((ocr) => ocr.name).join(", ")}
+              {field.selectedOcr.map((ocr) => ocr.name).join(", ")}
             </Typography>
           )}
       </ButtonBase>

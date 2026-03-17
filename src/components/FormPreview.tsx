@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment } from "react";
 
 const FieldLabel = ({ field }: { field: FormField }) => {
   return (
