@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
@@ -42,60 +42,35 @@ export default function SortableFieldItem({
   const span = field.span ?? 12;
   const dragStartXRef = useRef<number | null>(null);
   const dragStartSpanRef = useRef<number>(span);
-  const moveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
-  const upHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  function handleMouseMove(e: MouseEvent) {
-    if (dragStartXRef.current == null) return;
-    const deltaX = e.clientX - dragStartXRef.current;
-    const stepWidth = (cardRef.current?.clientWidth ?? 100) / 12;
-    const deltaSpan = Math.floor(deltaX / stepWidth);
-    const base = dragStartSpanRef.current;
-    const next = Math.min(12, Math.max(3, base + deltaSpan));
-    onChange(field.id, { span: next });
-  }
-
-  function handleMouseUp() {
-    dragStartXRef.current = null;
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-    moveHandlerRef.current = null;
-    upHandlerRef.current = null;
-  }
 
   function handleResizeMouseDown(event: React.MouseEvent<HTMLDivElement>) {
     event.stopPropagation();
     dragStartXRef.current = event.clientX;
     dragStartSpanRef.current = span;
 
-    moveHandlerRef.current = handleMouseMove;
-    upHandlerRef.current = handleMouseUp;
+    function handleMouseMove(e: MouseEvent) {
+      if (dragStartXRef.current == null) return;
+      const deltaX = e.clientX - dragStartXRef.current;
+      const stepWidth = 100; // 每 100px 視為一格
+      const deltaSpan = Math.floor(deltaX / stepWidth);
+      const base = dragStartSpanRef.current;
+      const next = Math.min(12, Math.max(3, base + deltaSpan));
+      onChange(field.id, { span: next });
+    }
+
+    function handleMouseUp() {
+      dragStartXRef.current = null;
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   }
 
-  // 保底清理：元件 unmount 時一定把 listener 拿掉
-  useEffect(() => {
-    return () => {
-      if (moveHandlerRef.current) {
-        window.removeEventListener("mousemove", moveHandlerRef.current);
-      }
-      if (upHandlerRef.current) {
-        window.removeEventListener("mouseup", upHandlerRef.current);
-      }
-      dragStartXRef.current = null;
-      dragStartSpanRef.current = span; // 或預設值
-    };
-  }, [span]);
-
   return (
     <Card
-      ref={(node) => {
-        setNodeRef(node);
-        cardRef.current = node;
-      }}
+      ref={setNodeRef}
       style={style}
       sx={{
         p: 1.5,
@@ -147,17 +122,6 @@ export default function SortableFieldItem({
       {/* 右側拖拉把手：拖移改變 span 大小 */}
       <Box
         onMouseDown={handleResizeMouseDown}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowRight")
-            onChange(field.id, { span: Math.min(12, span + 1) });
-          if (e.key === "ArrowLeft")
-            onChange(field.id, { span: Math.max(3, span - 1) });
-        }}
-        role="slider"
-        tabIndex={0}
-        aria-valuenow={span}
-        aria-valuemin={3}
-        aria-valuemax={12}
         sx={{
           ml: 1,
           alignSelf: "stretch",
