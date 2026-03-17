@@ -92,6 +92,9 @@ export default function FormPreview({ fields }: FormPreviewProps) {
                       "& .MuiOutlinedInput-notchedOutline": {
                         border: "none",
                       },
+                      "& .Mui-focused":{
+                        backgroundColor: "aliceblue",
+                      }
                     }}
                   />
                 </Grid>
