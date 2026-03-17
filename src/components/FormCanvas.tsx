@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { FormField } from "@/types/form";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, TextField, Typography } from "@mui/material";
 import SortableFieldItem, { CANVAS_ID } from "./SortableFieldItem";
 
 export { CANVAS_ID };
@@ -17,6 +17,8 @@ export interface FormCanvasProps {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  formTitle: string;
+  onChangeFormTitle: (title: string) => void;
 }
 
 export default function FormCanvas({
@@ -25,6 +27,8 @@ export default function FormCanvas({
   onSelect,
   onDelete,
   onChange,
+  formTitle,
+  onChangeFormTitle,
 }: FormCanvasProps) {
   const { setNodeRef, isOver } = useDroppable({ id: CANVAS_ID });
 
@@ -41,9 +45,15 @@ export default function FormCanvas({
         borderColor: "divider",
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-        畫布
-      </Typography>
+      <TextField
+        fullWidth
+        placeholder="表單標題"
+        value={formTitle}
+        onChange={(e) => onChangeFormTitle(e.target.value)}
+        sx={{ mb: 2 }}
+        variant="standard"
+        required
+      />
       {fields.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
           從左側拖入欄位

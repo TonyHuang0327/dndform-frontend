@@ -32,14 +32,15 @@ const FieldLabel = ({ field }: { field: FormField }) => {
 
 export interface FormPreviewProps {
   fields: FormField[];
+  formTitle: string;
 }
 
-export default function FormPreview({ fields }: FormPreviewProps) {
+export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
   if (fields.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          尚無欄位，請在設計模式從左側加入。
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          {formTitle}
         </Typography>
       </Box>
     );
@@ -54,6 +55,19 @@ export default function FormPreview({ fields }: FormPreviewProps) {
         borderLeft: "1px solid black",
       }}
     >
+      <Grid
+        size={12}
+        sx={{
+          p: 1,
+          borderTop: "1px solid black",
+          borderRight: "1px solid black",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          {formTitle}
+        </Typography>
+      </Grid>
       {fields.map((field) => {
         if (
           field.type === "text" ||
@@ -61,44 +75,44 @@ export default function FormPreview({ fields }: FormPreviewProps) {
           field.type === "number"
         ) {
           return (
+            <Grid
+              container
+              spacing={0}
+              key={field.id}
+              size={field.span ?? 12}
+              sx={{
+                borderTop: "1px solid black",
+                borderRight: "1px solid black",
+              }}
+            >
+              <FieldLabel field={field} />
               <Grid
-                container
-                spacing={0}
-                key={field.id}
-                size={field.span ?? 12}
+                size={10}
                 sx={{
-                  borderTop: "1px solid black",
-                  borderRight: "1px solid black",
+                  p: 1,
                 }}
               >
-                <FieldLabel field={field} />
-                <Grid
-                  size={10}
+                <TextField
+                  fullWidth
+                  aria-labelledby={`${field.id}-label`}
+                  type={field.type === "number" ? "number" : "text"}
+                  multiline={field.type === "textarea"}
+                  minRows={field.type === "textarea" ? 3 : undefined}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                  size="small"
+                  variant="outlined"
                   sx={{
-                    p: 1,
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                    "& .Mui-focused": {
+                      backgroundColor: "aliceblue",
+                    },
                   }}
-                >
-                  <TextField
-                    fullWidth
-                    aria-labelledby={`${field.id}-label`}
-                    type={field.type === "number" ? "number" : "text"}
-                    multiline={field.type === "textarea"}
-                    minRows={field.type === "textarea" ? 3 : undefined}
-                    placeholder={field.placeholder}
-                    required={field.required}
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        border: "none",
-                      },
-                      "& .Mui-focused":{
-                        backgroundColor: "aliceblue",
-                      }
-                    }}
-                  />
-                </Grid>
+                />
               </Grid>
+            </Grid>
           );
         }
 
