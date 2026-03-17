@@ -117,6 +117,7 @@ export default function FormBuilderContent() {
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 onDelete={handleDelete}
+                onChange={handleChange}
               />
             </Box>
           </Box>
