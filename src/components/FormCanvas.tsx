@@ -55,9 +55,8 @@ export default function FormCanvas({
         >
           <Grid container spacing={2}>
             {fields.map((field) => (
-              <Grid size={field.span} key={field.id}>
+              <Grid size={field.span ?? 12} key={field.id}>
                 <SortableFieldItem
-                  key={field.id}
                   field={field}
                   isSelected={selectedId === field.id}
                   onSelect={onSelect}

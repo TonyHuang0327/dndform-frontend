@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
@@ -42,6 +42,8 @@ export default function SortableFieldItem({
   const span = field.span ?? 12;
   const dragStartXRef = useRef<number | null>(null);
   const dragStartSpanRef = useRef<number>(span);
+  const moveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
+  const upHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
 
   function handleResizeMouseDown(event: React.MouseEvent<HTMLDivElement>) {
     event.stopPropagation();
@@ -62,11 +64,28 @@ export default function SortableFieldItem({
       dragStartXRef.current = null;
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      moveHandlerRef.current = null;
+      upHandlerRef.current = null;
     }
+
+    moveHandlerRef.current = handleMouseMove;
+    upHandlerRef.current = handleMouseUp;
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   }
+
+  useEffect(() => {
+    return () => {
+      if (moveHandlerRef.current) {
+        window.removeEventListener("mousemove", moveHandlerRef.current);
+      }
+      if (upHandlerRef.current) {
+        window.removeEventListener("mouseup", upHandlerRef.current);
+      }
+      dragStartXRef.current = null;
+    };
+  }, []);
 
   return (
     <Card
@@ -140,6 +159,11 @@ export default function SortableFieldItem({
             bgcolor: "text.disabled",
           },
         }}
+        role="separator"
+        aria-orientation="vertical"
+        aria-valuenow={span}
+        aria-valuemin={3}
+        aria-valuemax={12}
         aria-label="拖拉調整欄位寬度"
       />
     </Card>
