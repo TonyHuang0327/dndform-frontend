@@ -18,6 +18,7 @@ export default function FormBuilderContent() {
   const [fields, setFields] = useState<FormField[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("design");
+  const [formTitle, setFormTitle] = useState("未命名表單");
 
   function handleDragEnd(event: DragEndEvent) {
     if (mode !== "design") return;
@@ -118,6 +119,8 @@ export default function FormBuilderContent() {
                 onSelect={setSelectedId}
                 onDelete={handleDelete}
                 onChange={handleChange}
+                formTitle={formTitle}
+                onChangeFormTitle={setFormTitle}
               />
             </Box>
           </Box>
@@ -135,7 +138,7 @@ export default function FormBuilderContent() {
             </Button>
           </Box>
           <div ref={previewRef}>
-            <FormPreview fields={fields} />
+            <FormPreview fields={fields} formTitle={formTitle} />
           </div>
         </Box>
       )}
