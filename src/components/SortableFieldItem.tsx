@@ -129,6 +129,11 @@ export default function SortableFieldItem({
         <Typography variant="caption" color="text.secondary">
           {field.type}
         </Typography>
+        {field.type === "ocr-list" && (
+          <Typography variant="caption" color="text.secondary">
+            {field.selectedOcr?.map((ocr) => ocr.name).join(", ")}
+          </Typography>
+        )}
       </ButtonBase>
       {/* 刪除欄位 */}
       <IconButton

@@ -6,6 +6,7 @@ import {
   type FormFieldOption,
 } from "@/types/form";
 import {
+  Autocomplete,
   Box,
   Checkbox,
   FormControlLabel,
@@ -36,6 +37,7 @@ export default function FieldPropertyEditor({
     field.type === "textarea" ||
     field.type === "number";
   const hasOptions = field.type === "radio" || field.type === "select";
+  const hasOcrList = field.type === "ocr-list";
 
   function handleOptionsChange(newOptions: FormFieldOption[]) {
     const options = newOptions.length === 0 ? [DEFAULT_OPTION] : newOptions;
@@ -83,16 +85,17 @@ export default function FieldPropertyEditor({
         onChange={(e) => update({ label: e.target.value })}
         fullWidth
       />
-
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={field.required ?? false}
-            onChange={(e) => update({ required: e.target.checked })}
-          />
-        }
-        label="必填"
-      />
+      {field.type !== "ocr-list" && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={field.required ?? false}
+              onChange={(e) => update({ required: e.target.checked })}
+            />
+          }
+          label="必填"
+        />
+      )}
 
       {hasPlaceholder && (
         <TextField
@@ -163,6 +166,28 @@ export default function FieldPropertyEditor({
             <AddIcon fontSize="small" />
           </IconButton>
         </Box>
+      )}
+      {hasOcrList && "ocrList" in field && (
+        <Autocomplete
+          options={field.ocrList.map((ocr) => ({
+            label: ocr.name,
+            value: ocr.id,
+          }))}
+          renderInput={(params) => <TextField {...params} label="OCR列表" />}
+          multiple
+          value={field.selectedOcr?.map((ocr) => ({
+            label: ocr.name,
+            value: ocr.id,
+          }))}
+          onChange={(_, newValue) =>
+            update({
+              selectedOcr: newValue.map((opt) => ({
+                id: opt.value,
+                name: opt.label,
+              })),
+            })
+          }
+        />
       )}
     </Box>
   );

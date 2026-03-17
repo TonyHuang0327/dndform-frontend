@@ -3,14 +3,16 @@
  * 匯出 JSON 與預覽渲染皆依此結構。
  */
 
+import { apiOcrList } from "@/services";
+
 export type FormFieldType =
   | "text"
   | "textarea"
   | "number"
   | "checkbox"
   | "radio"
-  | "select";
-
+  | "select"
+  | "ocr-list";
 export interface FormFieldOption {
   value: string;
   label: string;
@@ -44,10 +46,16 @@ export interface FormFieldWithOptions extends FormFieldBase {
   options: FormFieldOption[];
 }
 
+export interface FormFieldOcrList extends FormFieldBase {
+  type: "ocr-list";
+  ocrList: { id: number; name: string }[];
+  selectedOcr?: { id: number; name: string }[];
+}
 export type FormField =
   | FormFieldTextLike
   | FormFieldCheckbox
-  | FormFieldWithOptions;
+  | FormFieldWithOptions
+  | FormFieldOcrList;
 
 const DEFAULT_LABELS: Record<FormFieldType, string> = {
   text: "單行文字",
@@ -56,6 +64,7 @@ const DEFAULT_LABELS: Record<FormFieldType, string> = {
   checkbox: "勾選框",
   radio: "單選",
   select: "下拉選單",
+  "ocr-list": "OCR列表",
 };
 
 export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
@@ -64,7 +73,10 @@ export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
     label: DEFAULT_LABELS[type],
   }));
 
-export const DEFAULT_OPTION: FormFieldOption = { value: "opt1", label: "選項 1" };
+export const DEFAULT_OPTION: FormFieldOption = {
+  value: "opt1",
+  label: "選項 1",
+};
 
 function createOptions(): FormFieldOption[] {
   return [{ ...DEFAULT_OPTION }];
@@ -95,6 +107,15 @@ export function createField(type: FormFieldType): FormField {
         required: false,
         options: createOptions(),
         span,
+      };
+    case "ocr-list":
+      return {
+        id,
+        type,
+        label,
+        span,
+        required: false,
+        ocrList: apiOcrList(),
       };
     default: {
       const _: never = type;

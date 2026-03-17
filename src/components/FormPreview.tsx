@@ -216,6 +216,29 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
             </Grid>
           );
         }
+        if (field.type === "ocr-list") {
+          return (
+            <>
+              {field.selectedOcr?.map((ocr) => (
+                <Grid
+                  container
+                  spacing={0}
+                  key={field.id}
+                  size={field.span ?? 12}
+                  sx={{
+                    borderTop: "1px solid black",
+                    borderRight: "1px solid black",
+                  }}
+                >
+                  <FieldLabel field={field} />
+                  <Grid size={10} sx={{ p: 1 }}>
+                    <Typography variant="body1">{ocr.name}</Typography>
+                  </Grid>
+                </Grid>
+              ))}
+            </>
+          );
+        }
 
         return null;
       })}
