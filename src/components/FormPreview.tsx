@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { Fragment } from "react/jsx-runtime";
 
 const FieldLabel = ({ field }: { field: FormField }) => {
   return (
@@ -218,12 +219,12 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
         }
         if (field.type === "ocr-list") {
           return (
-            <>
+            <Fragment key={field.id}>
               {field.selectedOcr?.map((ocr) => (
                 <Grid
                   container
                   spacing={0}
-                  key={field.id}
+                  key={ocr.id}
                   size={field.span ?? 12}
                   sx={{
                     borderTop: "1px solid black",
@@ -236,7 +237,7 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                   </Grid>
                 </Grid>
               ))}
-            </>
+            </Fragment>
           );
         }
 

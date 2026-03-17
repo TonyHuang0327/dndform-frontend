@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { apiOcrList } from "@/services";
 
 export interface FieldPropertyEditorProps {
   field: FormField;
@@ -85,7 +86,7 @@ export default function FieldPropertyEditor({
         onChange={(e) => update({ label: e.target.value })}
         fullWidth
       />
-      {field.type !== "ocr-list" && (
+      {!hasOcrList && (
         <FormControlLabel
           control={
             <Checkbox
@@ -169,13 +170,13 @@ export default function FieldPropertyEditor({
       )}
       {hasOcrList && "ocrList" in field && (
         <Autocomplete
-          options={field.ocrList.map((ocr) => ({
+          options={apiOcrList().map((ocr) => ({
             label: ocr.name,
             value: ocr.id,
           }))}
           renderInput={(params) => <TextField {...params} label="OCR列表" />}
           multiple
-          value={field.selectedOcr?.map((ocr) => ({
+          value={(field.selectedOcr ?? []).map((ocr) => ({
             label: ocr.name,
             value: ocr.id,
           }))}
@@ -187,6 +188,7 @@ export default function FieldPropertyEditor({
               })),
             })
           }
+          isOptionEqualToValue={(option, value) => option.value === value.value}
         />
       )}
     </Box>

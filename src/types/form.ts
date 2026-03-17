@@ -115,7 +115,7 @@ export function createField(type: FormFieldType): FormField {
         label,
         span,
         required: false,
-        ocrList: apiOcrList(),
+        ocrList: [],
       };
     default: {
       const _: never = type;
