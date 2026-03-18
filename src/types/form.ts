@@ -3,8 +3,6 @@
  * 匯出 JSON 與預覽渲染皆依此結構。
  */
 
-import { apiOcrList } from "@/services";
-
 export type FormFieldType =
   | "text"
   | "textarea"
@@ -48,7 +46,6 @@ export interface FormFieldWithOptions extends FormFieldBase {
 
 export interface FormFieldOcrList extends FormFieldBase {
   type: "ocr-list";
-  ocrList: { id: number; name: string }[];
   selectedOcr?: { id: number; name: string }[];
 }
 export type FormField =
@@ -115,7 +112,6 @@ export function createField(type: FormFieldType): FormField {
         label,
         span,
         required: false,
-        ocrList: [],
       };
     default: {
       const _: never = type;
