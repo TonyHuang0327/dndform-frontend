@@ -54,7 +54,7 @@ export type FormField =
   | FormFieldWithOptions
   | FormFieldOcrList;
 
-const DEFAULT_LABELS: Record<FormFieldType, string> = {
+export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   text: "單行文字",
   textarea: "多行文字",
   number: "數字",
