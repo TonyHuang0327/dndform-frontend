@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { Fragment } from "react";
 
 const FieldLabel = ({ field }: { field: FormField }) => {
   return (
@@ -214,6 +215,61 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                 </Select>
               </Grid>
             </Grid>
+          );
+        }
+        if (field.type === "ocr-list") {
+          const selectedOcr = field.selectedOcr ?? [];
+          if (selectedOcr.length === 0) {
+            return (
+              <Grid
+                container
+                spacing={0}
+                key={field.id}
+                size={field.span ?? 12}
+                sx={{
+                  borderTop: "1px solid black",
+                  borderRight: "1px solid black",
+                }}
+              >
+                <FieldLabel field={field} />
+                <Grid size={10} sx={{ p: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    尚未選擇 OCR
+                  </Typography>
+                </Grid>
+              </Grid>
+            );
+          }
+          return (
+            <Fragment key={field.id}>
+              {selectedOcr.map((ocr) => (
+                <Grid
+                  container
+                  spacing={0}
+                  key={ocr.id}
+                  size={field.span ?? 12}
+                  sx={{
+                    borderTop: "1px solid black",
+                    borderRight: "1px solid black",
+                  }}
+                >
+                  <Grid
+                    size={2}
+                    sx={{
+                      borderRight: "1px solid black",
+                      display: "flex",
+                      p: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography>{field.label}</Typography>
+                  </Grid>
+                  <Grid size={10} sx={{ p: 1 }}>
+                    <Typography variant="body1">{ocr.name}</Typography>
+                  </Grid>
+                </Grid>
+              ))}
+            </Fragment>
           );
         }
 

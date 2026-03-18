@@ -6,6 +6,7 @@ import {
   type FormFieldOption,
 } from "@/types/form";
 import {
+  Autocomplete,
   Box,
   Checkbox,
   FormControlLabel,
@@ -15,6 +16,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useOcrList } from "@/queries";
 
 export interface FieldPropertyEditorProps {
   field: FormField;
@@ -36,6 +38,8 @@ export default function FieldPropertyEditor({
     field.type === "textarea" ||
     field.type === "number";
   const hasOptions = field.type === "radio" || field.type === "select";
+  const hasOcrList = field.type === "ocr-list";
+  const { data: ocrList } = useOcrList();
 
   function handleOptionsChange(newOptions: FormFieldOption[]) {
     const options = newOptions.length === 0 ? [DEFAULT_OPTION] : newOptions;
@@ -83,16 +87,17 @@ export default function FieldPropertyEditor({
         onChange={(e) => update({ label: e.target.value })}
         fullWidth
       />
-
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={field.required ?? false}
-            onChange={(e) => update({ required: e.target.checked })}
-          />
-        }
-        label="必填"
-      />
+      {!hasOcrList && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={field.required ?? false}
+              onChange={(e) => update({ required: e.target.checked })}
+            />
+          }
+          label="必填"
+        />
+      )}
 
       {hasPlaceholder && (
         <TextField
@@ -163,6 +168,29 @@ export default function FieldPropertyEditor({
             <AddIcon fontSize="small" />
           </IconButton>
         </Box>
+      )}
+      {hasOcrList && (
+        <Autocomplete
+          options={(ocrList ?? []).map((ocr) => ({
+            label: ocr.name,
+            value: ocr.id,
+          }))}
+          renderInput={(params) => <TextField {...params} label="OCR列表" />}
+          multiple
+          value={(field.selectedOcr ?? []).map((ocr) => ({
+            label: ocr.name,
+            value: ocr.id,
+          }))}
+          onChange={(_, newValue) =>
+            update({
+              selectedOcr: newValue.map((opt) => ({
+                id: opt.value,
+                name: opt.label,
+              })),
+            })
+          }
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+        />
       )}
     </Box>
   );
