@@ -242,7 +242,7 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
           }
           return (
             <Fragment key={field.id}>
-              {field.selectedOcr?.map((ocr) => (
+              {selectedOcr.map((ocr) => (
                 <Grid
                   container
                   spacing={0}
@@ -262,9 +262,7 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                       alignItems: "center",
                     }}
                   >
-                    <Typography id={`${ocr.id}-label`}>
-                      {field.label}
-                    </Typography>
+                    <Typography>{field.label}</Typography>
                   </Grid>
                   <Grid size={10} sx={{ p: 1 }}>
                     <Typography variant="body1">{ocr.name}</Typography>

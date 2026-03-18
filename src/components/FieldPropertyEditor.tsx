@@ -16,7 +16,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { apiOcrList } from "@/services";
 import { useOcrList } from "@/queries";
 
 export interface FieldPropertyEditorProps {
