@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import type { FormField } from "@/types/form";
 import { Box, ButtonBase, Card, IconButton, Typography } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useSortable } from "@dnd-kit/react/sortable";
+import { DEFAULT_LABELS } from "@/types/form";
 
 const CANVAS_ID = "canvas";
 
 export interface SortableFieldItemProps {
   field: FormField;
+  index: number;
   isSelected: boolean;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -20,25 +21,16 @@ export interface SortableFieldItemProps {
 
 export default function SortableFieldItem({
   field,
+  index,
   isSelected,
   onSelect,
   onDelete,
   onChange,
 }: SortableFieldItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: field.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
+  const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
+    id: field.id,
+    index,
+  });
   const span = field.span ?? 12;
   const dragStartXRef = useRef<number | null>(null);
   const dragStartSpanRef = useRef<number>(span);
@@ -89,22 +81,24 @@ export default function SortableFieldItem({
 
   return (
     <Card
-      ref={setNodeRef}
-      style={style}
+      ref={(node) => {
+        ref(node);
+        sourceRef(node);
+        targetRef(node);
+      }}
       sx={{
         p: 1.5,
-        opacity: isDragging ? 0.5 : 1,
         border: 2,
         borderColor: isSelected ? "primary.main" : "transparent",
         display: "flex",
         alignItems: "center",
         gap: 1,
+        opacity: isDragging ? 0.6 : 1,
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}
       <IconButton
-        {...attributes}
-        {...listeners}
+        ref={handleRef}
         sx={{
           cursor: "grab",
           color: "text.secondary",
@@ -125,21 +119,15 @@ export default function SortableFieldItem({
           textAlign: "left",
         }}
       >
-        <Typography variant="body2">{field.label}</Typography>
+        <Typography variant="body1">{field.label}</Typography>
         <Typography variant="caption" color="text.secondary">
-          {field.type}
+          {DEFAULT_LABELS[field.type]}
         </Typography>
-        {field.type === "ocr-list" &&
-          field.selectedOcr &&
-          field.selectedOcr.length > 0 && (
-            <Typography variant="caption" color="text.secondary">
-              {field.selectedOcr.map((ocr) => ocr.name).join(", ")}
-            </Typography>
-          )}
       </ButtonBase>
       {/* 刪除欄位 */}
       <IconButton
         size="small"
+        color="error"
         onClick={() => onDelete(field.id)}
         aria-label="刪除欄位"
       >
@@ -156,8 +144,6 @@ export default function SortableFieldItem({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderLeft: "1px solid",
-          borderColor: "divider",
           "&::before": {
             content: '""',
             display: "block",

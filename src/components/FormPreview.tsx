@@ -13,7 +13,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Fragment } from "react";
 
 const FieldLabel = ({ field }: { field: FormField }) => {
   return (
@@ -34,6 +33,142 @@ const FieldLabel = ({ field }: { field: FormField }) => {
 export interface FormPreviewProps {
   fields: FormField[];
   formTitle: string;
+}
+
+function getSpan(field: FormField) {
+  return Math.min(12, Math.max(1, field.span ?? 12));
+}
+
+function groupFieldsIntoRows(fields: FormField[]) {
+  const rows: FormField[][] = [];
+  let current: FormField[] = [];
+  let used = 0;
+
+  for (const field of fields) {
+    const span = getSpan(field);
+    if (used + span > 12 && current.length > 0) {
+      rows.push(current);
+      current = [];
+      used = 0;
+    }
+    current.push(field);
+    used += span;
+    if (used === 12) {
+      rows.push(current);
+      current = [];
+      used = 0;
+    }
+  }
+
+  if (current.length > 0) rows.push(current);
+  return rows;
+}
+
+function FieldBody({ field }: { field: FormField }) {
+  if (
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "number"
+  ) {
+    return (
+      <TextField
+        fullWidth
+        aria-labelledby={`${field.id}-label`}
+        type={field.type === "number" ? "number" : "text"}
+        multiline={field.type === "textarea"}
+        minRows={field.type === "textarea" ? 3 : undefined}
+        placeholder={field.placeholder}
+        required={field.required}
+        size="small"
+        variant="outlined"
+        sx={{
+          "& .MuiOutlinedInput-notchedOutline": {
+            border: "none",
+          },
+          "& .Mui-focused": {
+            backgroundColor: "aliceblue",
+          },
+          "& .MuiOutlinedInput-input": {
+            padding: 0,
+          },
+          "& .MuiOutlinedInput-root": {
+            padding: 0,
+          },
+        }}
+      />
+    );
+  }
+
+  if (field.type === "checkbox") {
+    return (
+      <Checkbox
+        defaultChecked={field.defaultChecked}
+        required={field.required}
+        aria-labelledby={`${field.id}-label`}
+      />
+    );
+  }
+
+  if (field.type === "radio" && "options" in field) {
+    return (
+      <RadioGroup
+        defaultValue={field.options[0]?.value}
+        aria-labelledby={`${field.id}-label`}
+      >
+        {field.options.map((opt) => (
+          <FormControlLabel
+            key={opt.value}
+            value={opt.value}
+            control={<Radio required={field.required} />}
+            label={opt.label}
+          />
+        ))}
+      </RadioGroup>
+    );
+  }
+
+  if (field.type === "select" && "options" in field) {
+    return (
+      <Select
+        defaultValue={field.options[0]?.value}
+        aria-labelledby={`${field.id}-label`}
+        required={field.required}
+        size="small"
+        sx={{
+          "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+        }}
+      >
+        {field.options.map((opt) => (
+          <MenuItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+      </Select>
+    );
+  }
+
+  if (field.type === "ocr-list") {
+    const selectedOcr = field.selectedOcr ?? [];
+    if (selectedOcr.length === 0) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          尚未選擇 OCR
+        </Typography>
+      );
+    }
+
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+        {selectedOcr.map((ocr) => (
+          <Typography key={ocr.id} variant="body1">
+            {ocr.name}
+          </Typography>
+        ))}
+      </Box>
+    );
+  }
+
+  return null;
 }
 
 export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
@@ -69,211 +204,51 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
           {formTitle}
         </Typography>
       </Grid>
-      {fields.map((field) => {
-        if (
-          field.type === "text" ||
-          field.type === "textarea" ||
-          field.type === "number"
-        ) {
-          return (
-            <Grid
-              container
-              spacing={0}
-              key={field.id}
-              size={field.span ?? 12}
-              sx={{
-                borderTop: "1px solid black",
-                borderRight: "1px solid black",
-              }}
-            >
-              <FieldLabel field={field} />
-              <Grid
-                size={10}
-                sx={{
-                  p: 1,
-                }}
-              >
-                <TextField
-                  fullWidth
-                  aria-labelledby={`${field.id}-label`}
-                  type={field.type === "number" ? "number" : "text"}
-                  multiline={field.type === "textarea"}
-                  minRows={field.type === "textarea" ? 3 : undefined}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
-                    "& .Mui-focused": {
-                      backgroundColor: "aliceblue",
-                    },
-                  }}
-                />
-              </Grid>
-            </Grid>
-          );
-        }
+      {groupFieldsIntoRows(fields).map((row, rowIndex) => {
+        const used = row.reduce((sum, f) => sum + getSpan(f), 0);
+        const remaining = Math.max(0, 12 - used);
 
-        if (field.type === "checkbox") {
-          return (
-            <Grid
-              key={field.id}
-              sx={{
-                borderTop: "1px solid black",
-                borderRight: "1px solid black",
-              }}
-              size={field.span ?? 12}
-              spacing={0}
-              container
-            >
-              <FieldLabel field={field} />
-              <Grid
-                size={10}
-                sx={{
-                  p: 1,
-                }}
-              >
-                <Checkbox
-                  defaultChecked={field.defaultChecked}
-                  required={field.required}
-                  aria-labelledby={`${field.id}-label`}
-                />
-              </Grid>
-            </Grid>
-          );
-        }
-
-        if (field.type === "radio" && "options" in field) {
-          return (
-            <Grid
-              key={field.id}
-              sx={{
-                borderTop: "1px solid black",
-                borderRight: "1px solid black",
-              }}
-              size={field.span ?? 12}
-              spacing={0}
-              container
-            >
-              <FieldLabel field={field} />
-              <Grid
-                size={10}
-                sx={{
-                  p: 1,
-                }}
-              >
-                <RadioGroup
-                  defaultValue={field.options[0]?.value}
-                  aria-labelledby={`${field.id}-label`}
-                >
-                  {field.options.map((opt) => (
-                    <FormControlLabel
-                      key={opt.value}
-                      value={opt.value}
-                      control={<Radio required={field.required} />}
-                      label={opt.label}
-                    />
-                  ))}
-                </RadioGroup>
-              </Grid>
-            </Grid>
-          );
-        }
-
-        if (field.type === "select" && "options" in field) {
-          return (
-            <Grid
-              key={field.id}
-              sx={{
-                borderTop: "1px solid black",
-                borderRight: "1px solid black",
-              }}
-              size={field.span ?? 12}
-              spacing={0}
-              container
-            >
-              <FieldLabel field={field} />
-              <Grid
-                size={10}
-                sx={{
-                  p: 1,
-                }}
-              >
-                <Select
-                  defaultValue={field.options[0]?.value}
-                  aria-labelledby={`${field.id}-label`}
-                  required={field.required}
-                >
-                  {field.options.map((opt) => (
-                    <MenuItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Grid>
-            </Grid>
-          );
-        }
-        if (field.type === "ocr-list") {
-          const selectedOcr = field.selectedOcr ?? [];
-          if (selectedOcr.length === 0) {
-            return (
-              <Grid
-                container
-                spacing={0}
-                key={field.id}
-                size={field.span ?? 12}
-                sx={{
-                  borderTop: "1px solid black",
-                  borderRight: "1px solid black",
-                }}
-              >
-                <FieldLabel field={field} />
-                <Grid size={10} sx={{ p: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    尚未選擇 OCR
-                  </Typography>
-                </Grid>
-              </Grid>
-            );
-          }
-          return (
-            <Fragment key={field.id}>
-              {selectedOcr.map((ocr) => (
+        return (
+          <Grid
+            key={`row-${rowIndex}`}
+            container
+            spacing={0}
+            size={12}
+            alignItems="stretch"
+            sx={{
+              borderTop: "1px solid black",
+            }}
+          >
+            {row.map((field) => {
+              const span = getSpan(field);
+              return (
                 <Grid
+                  key={field.id}
                   container
                   spacing={0}
-                  key={ocr.id}
-                  size={field.span ?? 12}
+                  size={span}
                   sx={{
-                    borderTop: "1px solid black",
                     borderRight: "1px solid black",
                   }}
                 >
-                  <Grid
-                    size={2}
-                    sx={{
-                      borderRight: "1px solid black",
-                      display: "flex",
-                      p: 1,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography>{field.label}</Typography>
-                  </Grid>
+                  <FieldLabel field={field} />
                   <Grid size={10} sx={{ p: 1 }}>
-                    <Typography variant="body1">{ocr.name}</Typography>
+                    <FieldBody field={field} />
                   </Grid>
                 </Grid>
-              ))}
-            </Fragment>
-          );
-        }
+              );
+            })}
 
-        return null;
+            {remaining > 0 && (
+              <Grid
+                size={remaining}
+                sx={{
+                  borderRight: "1px solid black",
+                }}
+              />
+            )}
+          </Grid>
+        );
       })}
     </Grid>
   );
