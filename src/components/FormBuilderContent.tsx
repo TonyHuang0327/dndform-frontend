@@ -66,7 +66,7 @@ export default function FormBuilderContent() {
     const { source, target } = event.operation;
     if (mode !== "design") return;
     if (!target) return;
-    if (source?.id === target?.id) return;
+    if (source?.id === target.id) return;
 
     const data = source?.data as
       | { type?: FormField["type"]; source?: string }

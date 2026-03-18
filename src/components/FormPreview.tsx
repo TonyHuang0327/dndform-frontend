@@ -65,7 +65,11 @@ function groupFieldsIntoRows(fields: FormField[]) {
 }
 
 function FieldBody({ field }: { field: FormField }) {
-  if (field.type === "text" || field.type === "textarea" || field.type === "number") {
+  if (
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "number"
+  ) {
     return (
       <TextField
         fullWidth
@@ -217,42 +221,6 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
           >
             {row.map((field) => {
               const span = getSpan(field);
-              const isOcrList = field.type === "ocr-list";
-              const selectedOcr = isOcrList ? field.selectedOcr ?? [] : [];
-
-              if (isOcrList && selectedOcr.length > 0) {
-                return (
-                  <Grid
-                    key={field.id}
-                    size={span}
-                    sx={{
-                      borderRight: "1px solid black",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {selectedOcr.map((ocr) => (
-                      <Grid container spacing={0} key={ocr.id} sx={{ flex: 1 }}>
-                        <Grid
-                          size={2}
-                          sx={{
-                            borderRight: "1px solid black",
-                            display: "flex",
-                            p: 1,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography>{field.label}</Typography>
-                        </Grid>
-                        <Grid size={10} sx={{ p: 1 }}>
-                          <Typography variant="body1">{ocr.name}</Typography>
-                        </Grid>
-                      </Grid>
-                    ))}
-                  </Grid>
-                );
-              }
-
               return (
                 <Grid
                   key={field.id}
