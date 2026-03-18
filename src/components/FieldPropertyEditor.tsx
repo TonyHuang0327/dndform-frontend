@@ -170,7 +170,7 @@ export default function FieldPropertyEditor({
           </IconButton>
         </Box>
       )}
-      {hasOcrList && "ocrList" in field && (
+      {hasOcrList && (
         <Autocomplete
           options={(ocrList ?? []).map((ocr) => ({
             label: ocr.name,
