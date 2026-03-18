@@ -218,6 +218,28 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
           );
         }
         if (field.type === "ocr-list") {
+          const selectedOcr = field.selectedOcr ?? [];
+          if (selectedOcr.length === 0) {
+            return (
+              <Grid
+                container
+                spacing={0}
+                key={field.id}
+                size={field.span ?? 12}
+                sx={{
+                  borderTop: "1px solid black",
+                  borderRight: "1px solid black",
+                }}
+              >
+                <FieldLabel field={field} />
+                <Grid size={10} sx={{ p: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    尚未選擇 OCR
+                  </Typography>
+                </Grid>
+              </Grid>
+            );
+          }
           return (
             <Fragment key={field.id}>
               {field.selectedOcr?.map((ocr) => (
@@ -231,7 +253,19 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                     borderRight: "1px solid black",
                   }}
                 >
-                  <FieldLabel field={field} />
+                  <Grid
+                    size={2}
+                    sx={{
+                      borderRight: "1px solid black",
+                      display: "flex",
+                      p: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography id={`${ocr.id}-label`}>
+                      {field.label}
+                    </Typography>
+                  </Grid>
                   <Grid size={10} sx={{ p: 1 }}>
                     <Typography variant="body1">{ocr.name}</Typography>
                   </Grid>

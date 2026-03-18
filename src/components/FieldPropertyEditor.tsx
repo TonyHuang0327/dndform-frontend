@@ -17,6 +17,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { apiOcrList } from "@/services";
+import { useOcrList } from "@/queries";
 
 export interface FieldPropertyEditorProps {
   field: FormField;
@@ -39,6 +40,7 @@ export default function FieldPropertyEditor({
     field.type === "number";
   const hasOptions = field.type === "radio" || field.type === "select";
   const hasOcrList = field.type === "ocr-list";
+  const { data: ocrList } = useOcrList();
 
   function handleOptionsChange(newOptions: FormFieldOption[]) {
     const options = newOptions.length === 0 ? [DEFAULT_OPTION] : newOptions;
@@ -170,7 +172,7 @@ export default function FieldPropertyEditor({
       )}
       {hasOcrList && "ocrList" in field && (
         <Autocomplete
-          options={apiOcrList().map((ocr) => ({
+          options={(ocrList ?? []).map((ocr) => ({
             label: ocr.name,
             value: ocr.id,
           }))}
