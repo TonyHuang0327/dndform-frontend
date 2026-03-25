@@ -119,3 +119,127 @@ export function createField(type: FormFieldType): FormField {
     }
   }
 }
+
+// ── Layout Container ─────────────────────────────────────────
+
+/** 版面容器的單一格子 */
+export interface LayoutColumn {
+  id: string;
+  /** 1~12，同一容器內所有 span 加總等於 12 */
+  span: number;
+  fields: FormField[];
+}
+
+/** 版面容器（一層，不可再嵌套容器） */
+export interface LayoutContainer {
+  id: string;
+  type: "layout";
+  columns: LayoutColumn[];
+}
+
+/**
+ * 畫布項目：表單欄位或版面容器。
+ * 若未來新增第三種型別，isFormField 守衛須同步更新。
+ */
+export type CanvasItem = FormField | LayoutContainer;
+
+// ── Type Guards ───────────────────────────────────────────────
+
+export function isLayoutContainer(
+  item: CanvasItem
+): item is LayoutContainer {
+  return item.type === "layout";
+}
+
+/**
+ * 此守衛假設所有非 "layout" 的 CanvasItem 都是 FormField。
+ * FormFieldType 不含 "layout"，目前定義下安全。
+ */
+export function isFormField(item: CanvasItem): item is FormField {
+  return item.type !== "layout";
+}
+
+// ── Layout Factory ────────────────────────────────────────────
+
+export type LayoutType = "2col" | "3col" | "4col";
+
+export function createLayoutContainer(
+  layoutType: LayoutType
+): LayoutContainer {
+  const counts: Record<LayoutType, number> = {
+    "2col": 2,
+    "3col": 3,
+    "4col": 4,
+  };
+  const count = counts[layoutType];
+  const span = 12 / count;
+  return {
+    id: crypto.randomUUID(),
+    type: "layout",
+    columns: Array.from({ length: count }, () => ({
+      id: crypto.randomUUID(),
+      span,
+      fields: [],
+    })),
+  };
+}
+
+// ── Helpers for nested lookup ─────────────────────────────────
+
+/**
+ * 在 CanvasItem[] 中查找指定 id 的 FormField（含容器內部）。
+ * 回傳 { field, containerId, columnId } 或 null。
+ */
+export function findFieldInItems(
+  id: string,
+  items: CanvasItem[]
+): { field: FormField; containerId: string | null; columnId: string | null } | null {
+  for (const item of items) {
+    if (isFormField(item) && item.id === id) {
+      return { field: item, containerId: null, columnId: null };
+    }
+    if (isLayoutContainer(item)) {
+      for (const col of item.columns) {
+        const found = col.fields.find((f) => f.id === id);
+        if (found) {
+          return { field: found, containerId: item.id, columnId: col.id };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * 判斷 source 與 target 是否在同一個 column 內。
+ * target 可能是格子內另一欄位的 id（非 column id）。
+ */
+export function isSameColumn(
+  sourceId: string,
+  targetId: string,
+  items: CanvasItem[]
+): boolean {
+  const srcMeta = findFieldInItems(sourceId, items);
+  const tgtMeta = findFieldInItems(targetId, items);
+  return (
+    srcMeta?.columnId != null &&
+    srcMeta.columnId === tgtMeta?.columnId
+  );
+}
+
+/**
+ * 判斷 id 是否為畫布上任意一個有效 id（頂層 item、容器、column、或 column 內欄位）。
+ * 升級版的 isFieldId，用於 drag handler 驗證。
+ */
+export function isCanvasItemId(id: unknown, items: CanvasItem[]): boolean {
+  if (typeof id !== "string") return false;
+  return items.some((item) => {
+    if (item.id === id) return true;
+    if (isLayoutContainer(item)) {
+      return item.columns.some(
+        (col) => col.id === id || col.fields.some((f) => f.id === id)
+      );
+    }
+    return false;
+  });
+}
