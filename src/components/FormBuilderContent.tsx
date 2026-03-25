@@ -95,6 +95,12 @@ export default function FormBuilderContent() {
   const handlePrintPreview = useReactToPrint({
     contentRef: previewRef,
     documentTitle: "form-preview",
+    pageStyle: `
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+  `,
   });
 
   return (

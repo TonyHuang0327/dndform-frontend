@@ -189,6 +189,12 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
       sx={{
         borderBottom: "1px solid black",
         borderLeft: "1px solid black",
+        borderRight: "1px solid black",
+        boxSizing: "border-box",
+        width: "457px",
+        height: "647px",
+        margin: "0 auto",
+        alignContent: "flex-start",
       }}
     >
       <Grid
@@ -196,7 +202,7 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
         sx={{
           p: 1,
           borderTop: "1px solid black",
-          borderRight: "1px solid black",
+          borderBottom: "1px solid black",
           textAlign: "center",
         }}
       >
@@ -216,11 +222,14 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
             size={12}
             alignItems="stretch"
             sx={{
-              borderTop: "1px solid black",
+              borderBottom: "1px solid black",
             }}
           >
-            {row.map((field) => {
+            {row.map((field, fieldIndex) => {
               const span = getSpan(field);
+              const isLastInFullRow =
+                fieldIndex === row.length - 1 && remaining === 0;
+
               return (
                 <Grid
                   key={field.id}
@@ -228,7 +237,7 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                   spacing={0}
                   size={span}
                   sx={{
-                    borderRight: "1px solid black",
+                    borderRight: isLastInFullRow ? "none" : "1px solid black",
                   }}
                 >
                   <FieldLabel field={field} />
@@ -238,15 +247,6 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
                 </Grid>
               );
             })}
-
-            {remaining > 0 && (
-              <Grid
-                size={remaining}
-                sx={{
-                  borderRight: "1px solid black",
-                }}
-              />
-            )}
           </Grid>
         );
       })}
