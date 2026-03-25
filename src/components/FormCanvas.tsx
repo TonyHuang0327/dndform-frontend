@@ -1,14 +1,16 @@
 "use client";
 
-import type { FormField } from "@/types/form";
+import type { CanvasItem, FormField } from "@/types/form";
+import { isLayoutContainer } from "@/types/form";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import SortableFieldItem, { CANVAS_ID } from "./SortableFieldItem";
+import LayoutContainerItem from "./LayoutContainerItem";
 import { useDroppable } from "@dnd-kit/react";
 
 export { CANVAS_ID };
 
 export interface FormCanvasProps {
-  fields: FormField[];
+  items: CanvasItem[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -18,7 +20,7 @@ export interface FormCanvasProps {
 }
 
 export default function FormCanvas({
-  fields,
+  items,
   selectedId,
   onSelect,
   onDelete,
@@ -51,22 +53,35 @@ export default function FormCanvas({
         variant="standard"
         required
       />
-      {fields.length === 0 ? (
+      {items.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
           從左側拖入欄位
         </Typography>
       ) : (
         <Grid container spacing={2}>
-          {fields.map((field, index) => (
-            <Grid size={field.span ?? 12} key={field.id}>
-              <SortableFieldItem
-                field={field}
-                index={index}
-                isSelected={selectedId === field.id}
-                onSelect={onSelect}
-                onDelete={onDelete}
-                onChange={onChange}
-              />
+          {items.map((item, index) => (
+            <Grid
+              size={isLayoutContainer(item) ? 12 : (item.span ?? 12)}
+              key={item.id}
+            >
+              {isLayoutContainer(item) ? (
+                <LayoutContainerItem
+                  container={item}
+                  selectedId={selectedId}
+                  onSelect={onSelect}
+                  onDelete={onDelete}
+                  onChange={onChange}
+                />
+              ) : (
+                <SortableFieldItem
+                  field={item}
+                  index={index}
+                  isSelected={selectedId === item.id}
+                  onSelect={onSelect}
+                  onDelete={onDelete}
+                  onChange={onChange}
+                />
+              )}
             </Grid>
           ))}
         </Grid>
