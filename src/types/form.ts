@@ -212,7 +212,8 @@ export function findFieldInItems(
 
 /**
  * 判斷 source 與 target 是否在同一個 column 內。
- * target 可能是格子內另一欄位的 id（非 column id）。
+ * 兩個參數皆應為欄位（FormField）的 id，不支援直接傳入 column id。
+ * 若 target 為 column id 本身，tgtMeta 會是 null，結果永遠為 false。
  */
 export function isSameColumn(
   sourceId: string,
@@ -230,6 +231,7 @@ export function isSameColumn(
 /**
  * 判斷 id 是否為畫布上任意一個有效 id（頂層 item、容器、column、或 column 內欄位）。
  * 升級版的 isFieldId，用於 drag handler 驗證。
+ * 注意：不包含畫布根 droppable（CANVAS_ID），呼叫端需另行判斷。
  */
 export function isCanvasItemId(id: unknown, items: CanvasItem[]): boolean {
   if (typeof id !== "string") return false;
