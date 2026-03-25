@@ -37,7 +37,6 @@ function ColumnSlot({
     <Box
       ref={ref}
       sx={{
-        flex: 1,
         minHeight: 60,
         border: "1px dashed",
         borderColor: isDropTarget ? "primary.main" : "grey.400",
