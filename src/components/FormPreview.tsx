@@ -1,6 +1,11 @@
 "use client";
 
-import type { FormField } from "@/types/form";
+import {
+  type CanvasItem,
+  type FormField,
+  isLayoutContainer,
+  isFormField,
+} from "@/types/form";
 import {
   Box,
   Checkbox,
@@ -31,38 +36,10 @@ const FieldLabel = ({ field }: { field: FormField }) => {
 };
 
 export interface FormPreviewProps {
-  fields: FormField[];
+  items: CanvasItem[];
   formTitle: string;
 }
 
-function getSpan(field: FormField) {
-  return Math.min(12, Math.max(1, field.span ?? 12));
-}
-
-function groupFieldsIntoRows(fields: FormField[]) {
-  const rows: FormField[][] = [];
-  let current: FormField[] = [];
-  let used = 0;
-
-  for (const field of fields) {
-    const span = getSpan(field);
-    if (used + span > 12 && current.length > 0) {
-      rows.push(current);
-      current = [];
-      used = 0;
-    }
-    current.push(field);
-    used += span;
-    if (used === 12) {
-      rows.push(current);
-      current = [];
-      used = 0;
-    }
-  }
-
-  if (current.length > 0) rows.push(current);
-  return rows;
-}
 
 function FieldBody({ field }: { field: FormField }) {
   if (
@@ -171,8 +148,8 @@ function FieldBody({ field }: { field: FormField }) {
   return null;
 }
 
-export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
-  if (fields.length === 0) {
+export default function FormPreview({ items, formTitle }: FormPreviewProps) {
+  if (items.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
@@ -192,11 +169,11 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
         borderRight: "1px solid black",
         boxSizing: "border-box",
         width: "457px",
-        height: "647px",
         margin: "0 auto",
         alignContent: "flex-start",
       }}
     >
+      {/* 表單標題列 */}
       <Grid
         size={12}
         sx={{
@@ -210,45 +187,76 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
           {formTitle}
         </Typography>
       </Grid>
-      {groupFieldsIntoRows(fields).map((row, rowIndex) => {
-        const used = row.reduce((sum, f) => sum + getSpan(f), 0);
-        const remaining = Math.max(0, 12 - used);
 
-        return (
-          <Grid
-            key={`row-${rowIndex}`}
-            container
-            spacing={0}
-            size={12}
-            alignItems="stretch"
-            sx={{
-              borderBottom: "1px solid black",
-            }}
-          >
-            {row.map((field, fieldIndex) => {
-              const span = getSpan(field);
-              const isLastInFullRow =
-                fieldIndex === row.length - 1 && remaining === 0;
-
-              return (
-                <Grid
-                  key={field.id}
-                  container
-                  spacing={0}
-                  size={span}
-                  sx={{
-                    borderRight: isLastInFullRow ? "none" : "1px solid black",
-                  }}
-                >
-                  <FieldLabel field={field} />
-                  <Grid size={10} sx={{ p: 1 }}>
-                    <FieldBody field={field} />
+      {/* 逐項渲染 */}
+      {items.map((item) => {
+        if (isLayoutContainer(item)) {
+          return (
+            <Grid
+              key={item.id}
+              container
+              spacing={0}
+              size={12}
+              alignItems="stretch"
+              sx={{ borderBottom: "1px solid black" }}
+            >
+              {item.columns.map((col, colIndex) => {
+                const isLastCol = colIndex === item.columns.length - 1;
+                return (
+                  <Grid
+                    key={col.id}
+                    size={col.span}
+                    sx={{
+                      borderRight: isLastCol ? "none" : "1px solid black",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {col.fields.length === 0 ? (
+                      <Box sx={{ minHeight: 40 }} />
+                    ) : (
+                      col.fields.map((field, fieldIndex) => (
+                        <Box
+                          key={field.id}
+                          sx={{
+                            display: "flex",
+                            borderTop:
+                              fieldIndex > 0 ? "1px solid black" : "none",
+                          }}
+                        >
+                          <FieldLabel field={field} />
+                          <Box sx={{ flex: 1, p: 1 }}>
+                            <FieldBody field={field} />
+                          </Box>
+                        </Box>
+                      ))
+                    )}
                   </Grid>
-                </Grid>
-              );
-            })}
-          </Grid>
-        );
+                );
+              })}
+            </Grid>
+          );
+        }
+
+        if (isFormField(item)) {
+          return (
+            <Grid
+              key={item.id}
+              container
+              spacing={0}
+              size={12}
+              alignItems="stretch"
+              sx={{ borderBottom: "1px solid black" }}
+            >
+              <FieldLabel field={item} />
+              <Grid size={10} sx={{ p: 1 }}>
+                <FieldBody field={item} />
+              </Grid>
+            </Grid>
+          );
+        }
+
+        return null;
       })}
     </Grid>
   );
