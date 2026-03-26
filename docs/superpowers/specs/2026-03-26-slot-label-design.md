@@ -33,13 +33,13 @@
 
 檔案：`src/types/form.ts`
 
-### `LayoutColumn` 新增欄位
+### `LayoutColumn` 新增欄位（過渡期）
 
 ```ts
 export interface LayoutColumn {
   id: string;
   span: number;
-  label: string;   // 新增
+  label?: string;   // 新增（過渡期 optional，避免舊資料載入失敗）
   fields: FormField[];
 }
 ```
@@ -47,6 +47,13 @@ export interface LayoutColumn {
 ### `createLayoutContainer()` 預設值
 
 建立容器時，每個 `column` 預設 `label: "標題"`。
+
+### 舊資料 migration（唯一策略）
+
+- 在載入 items（或初始化 setItems）時統一做一次 migration：
+  - 若 `col.label` 缺失，補 `"標題"` 後再寫回 state。
+- **唯一策略**：只採用「載入時一次補值」；不使用「下一次編輯才補值」。
+- 本專案本次實作的觸發點：`FormBuilderContent` 中 `useState` 初始化後，第一個 `useEffect` 針對當前 `items` 做一次 normalize（若已完整則不變更）。
 
 ---
 
@@ -95,8 +102,39 @@ export interface LayoutColumn {
 
 因不再顯示 `FieldLabel`，`FieldBody` 內元件的可存取屬性需調整：
 
-- 由 `aria-labelledby` 改為 `aria-label={slotLabel}`（容器內）
-- 若是頂層欄位（無 slot label），使用合理 fallback（例如 `field.type` 或既有 `field.label`）
+- 主要策略：統一使用 `aria-label`（不使用 `aria-labelledby`）以降低結構耦合。
+- 需避免重名：
+  - 規則：`controlAriaLabel = effectiveSlotLabel + "-" + 欄位類型 + "-" + 序號`
+  - 範例：`聯絡資訊-checkbox-1`
+- `effectiveSlotLabel` 定義：
+  - `col.label.trim() !== ""` 時使用 `col.label`
+  - `col.label` 為空字串時 fallback `"未命名欄位"`
+- `序號` 定義：
+  - 採「**slot 內欄位順序**（1-based）」計算
+  - 每次 slot 內排序改變後即重算
+  - 作用域為「單一 column」：每個 `column.fields` 各自從 1 開始計算。
+- `radio` / `select` 同樣使用 `aria-label`，規則一致。
+  - `radio`：掛在 `RadioGroup` 根節點。
+  - `select`：掛在 `Select` 根節點。
+  - option 本身不額外覆寫 `aria-label`。
+- 若是頂層欄位（無 slot label），fallback：`field.type + "-" + topLevelFieldOrder`。
+  - `topLevelFieldOrder` 定義：僅計算頂層 `isFormField(item)` 的 1-based 順序，不包含容器。
+- `欄位類型` 字串來源統一使用 `field.type`（英文代碼），避免多語系字串造成不一致。
+
+## 設計模式顯示規則
+
+- 此需求只變更「標題來源」與「預覽顯示」。
+- 設計模式中，`SortableFieldItem` 文字顯示改用 `DEFAULT_LABELS[field.type]`（型別名），不使用 `field.label`。
+- `field.label` 僅作過渡資料欄位保留，不作 UI 顯示依據。
+- `onChangeColumnLabel(containerId, columnId, label)`：label 原樣保存，不自動 `trim`、不自動回填預設值。
+
+## Preview 版面結構（固定）
+
+- 每個 slot 由兩段組成：
+  1) slot 標題列（固定在上方，邊框沿用現有表格線）
+  2) slot 內容區（下方渲染控制項或空狀態）
+- 空 slot 仍渲染 1) + 2)，其中內容區顯示空狀態提示。
+- print/PDF 與 preview 共用同一個 `FormPreview` 渲染流程，不分支。
 
 ---
 
@@ -105,7 +143,9 @@ export interface LayoutColumn {
 1. **slot 內多欄位**：共用一個 slot 標題，不為每個欄位建立獨立標題。
 2. **空 slot**：仍顯示標題與空狀態提示（如「拖入欄位」）。
 3. **頂層欄位**：仍允許存在，但預覽不顯示標題。
-4. **歷史資料相容**：舊資料沒有 `LayoutColumn.label` 時，渲染時 fallback `"標題"`，並在下一次編輯時補寫回 state。
+4. **歷史資料相容**：舊資料沒有 `LayoutColumn.label` 時，載入時 migration 立即補 `"標題"` 並寫回 state。
+5. **空標題值**：`col.label === ""` 時，preview 顯示空白標題區（不自動回填「標題」），以反映使用者輸入。
+6. **列印一致性**：preview 與 print/PDF 共用同一渲染入口（`FormPreview`），使用同一套 slot 標題顯示規則。
 
 ---
 
@@ -115,5 +155,7 @@ export interface LayoutColumn {
 2. slot 標題更新後，預覽頁立即同步顯示。
 3. 預覽頁不再顯示欄位元件自帶標題（含容器內與頂層欄位）。
 4. `FieldPropertyEditor` 不再有標題欄位。
-5. `npx tsc --noEmit` 通過，且拖曳行為不回歸。
+5. 舊資料（無 `col.label`）載入不報錯，且可正常看到 slot 標題（migration 生效）。
+6. 多個控制項在同一 slot 內，a11y 名稱不重複（依命名規則）。
+7. `npx tsc --noEmit` 通過，且拖曳行為不回歸。
 
