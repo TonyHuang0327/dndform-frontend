@@ -135,6 +135,7 @@ export interface LayoutColumn {
 export interface LayoutContainer {
   id: string;
   type: "layout";
+  variant: LayoutVariant;
   columns: LayoutColumn[];
 }
 
@@ -161,8 +162,12 @@ export function isFormField(item: CanvasItem): item is FormField {
 // ── Layout Factory ────────────────────────────────────────────
 
 export type LayoutType = "1col" | "2col";
+export type LayoutVariant = "labeled" | "plain";
 
-export function createLayoutContainer(layoutType: LayoutType): LayoutContainer {
+export function createLayoutContainer(
+  layoutType: LayoutType,
+  variant: LayoutVariant = "labeled"
+): LayoutContainer {
   const counts: Record<LayoutType, number> = {
     "1col": 1,
     "2col": 2,
@@ -172,13 +177,18 @@ export function createLayoutContainer(layoutType: LayoutType): LayoutContainer {
   return {
     id: crypto.randomUUID(),
     type: "layout",
+    variant,
     columns: Array.from({ length: count }, () => ({
       id: crypto.randomUUID(),
       span,
-      label: "標題",
+      label: variant === "plain" ? "" : "標題",
       fields: [],
     })),
   };
+}
+
+export function isPlainLayout(container: LayoutContainer): boolean {
+  return container.variant === "plain";
 }
 
 // ── Helpers for nested lookup ─────────────────────────────────

@@ -2,7 +2,7 @@
 
 import { useDroppable } from "@dnd-kit/react";
 import { Box, Grid, TextField, Typography } from "@mui/material";
-import type { FormField, LayoutContainer } from "@/types/form";
+import { isPlainLayout, type FormField, type LayoutContainer } from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
 
 export interface LayoutContainerItemProps {
@@ -22,6 +22,7 @@ export interface LayoutContainerItemProps {
 
 const LABEL_WIDTH = 150;
 type ColumnSlotProps = {
+  isPlain: boolean;
   containerId: string;
   columnId: string;
   columnLabel: string;
@@ -37,6 +38,7 @@ type ColumnSlotProps = {
   ) => void;
 };
 function ColumnSlot({
+  isPlain,
   containerId,
   columnId,
   columnLabel,
@@ -59,40 +61,42 @@ function ColumnSlot({
         bgcolor: isDropTarget ? "action.hover" : "background.paper",
       }}
     >
-      <Box
-        sx={{
-          width: LABEL_WIDTH,
-          minWidth: LABEL_WIDTH,
-          flexShrink: 0,
-          borderRight: "1px solid black",
-          display: "flex",
-          p: 1,
-          alignItems: "center",
-        }}
-      >
-        <TextField
-          id={`${columnId}-label`}
-          value={columnLabel}
-          onChange={(e) =>
-            onChangeColumnLabel(containerId, columnId, e.target.value)
-          }
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          aria-label="欄位標題"
-          variant="outlined"
+      {!isPlain && (
+        <Box
           sx={{
-            "& .MuiInputBase-input": {
-              padding: 0,
-            },
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "& .Mui-focused": {
-              backgroundColor: "aliceblue",
-            },
+            width: LABEL_WIDTH,
+            minWidth: LABEL_WIDTH,
+            flexShrink: 0,
+            borderRight: "1px solid black",
+            display: "flex",
+            p: 1,
+            alignItems: "center",
           }}
-        />
-      </Box>
+        >
+          <TextField
+            id={`${columnId}-label`}
+            value={columnLabel}
+            onChange={(e) =>
+              onChangeColumnLabel(containerId, columnId, e.target.value)
+            }
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label="欄位標題"
+            variant="outlined"
+            sx={{
+              "& .MuiInputBase-input": {
+                padding: 0,
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "& .Mui-focused": {
+                backgroundColor: "aliceblue",
+              },
+            }}
+          />
+        </Box>
+      )}
 
       <Box
         sx={{
@@ -134,6 +138,7 @@ export default function LayoutContainerItem({
   onChange,
   onChangeColumnLabel,
 }: LayoutContainerItemProps) {
+  const plain = isPlainLayout(container);
   return (
     <Box
       sx={{
@@ -161,6 +166,7 @@ export default function LayoutContainerItem({
         {container.columns.map((col) => (
           <Box key={col.id} sx={{ flex: col.span }}>
             <ColumnSlot
+              isPlain={plain}
               containerId={container.id}
               columnId={col.id}
               columnLabel={col.label ?? "標題"}

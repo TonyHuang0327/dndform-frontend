@@ -3,6 +3,7 @@
 import {
   type CanvasItem,
   type FormField,
+  isPlainLayout,
   isLayoutContainer,
   isFormField,
 } from "@/types/form";
@@ -201,6 +202,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
       {/* 逐項渲染 */}
       {items.map((item) => {
         if (isLayoutContainer(item)) {
+          const plain = isPlainLayout(item);
           return (
             <Grid
               key={item.id}
@@ -222,24 +224,28 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                       flexDirection: "row",
                     }}
                   >
-                    <Box
-                      sx={{
-                        p: 1,
-                        width: LABEL_WIDTH,
-                        backgroundColor: "grey.50",
-                        borderRight: "1px solid black",
-                      }}
-                    >
-                      <Typography variant="body1">
-                        {col.label?.trim() ? col.label : "未命名欄位"}
-                      </Typography>
-                    </Box>
+                    {!plain && (
+                      <Box
+                        sx={{
+                          p: 1,
+                          width: LABEL_WIDTH,
+                          backgroundColor: "grey.50",
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        <Typography variant="body1">
+                          {col.label?.trim() ? col.label : "未命名欄位"}
+                        </Typography>
+                      </Box>
+                    )}
                     {col.fields.length === 0 ? (
                       <Box sx={{ p: 1, flex: 1 }}>
                         <TextField
                           fullWidth
                           aria-label={`${
-                            col.label?.trim() ? col.label : "未命名欄位"
+                            plain
+                              ? `第${colIndex + 1}欄`
+                              : col.label?.trim() || "未命名欄位"
                           }-尚未加入元件`}
                           placeholder="尚未加入元件-預設為文字輸入框"
                           sx={{
@@ -270,7 +276,9 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                             <FieldBody
                               field={field}
                               ariaLabel={`${
-                                col.label?.trim() ? col.label : "未命名欄位"
+                                plain
+                                  ? `第${colIndex + 1}欄`
+                                  : col.label?.trim() || "未命名欄位"
                               }-${field.type}-${fieldIndex + 1}`}
                             />
                           </Box>

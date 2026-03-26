@@ -17,6 +17,7 @@ import {
   type CanvasItem,
   type FormField,
   type LayoutType,
+  type LayoutVariant,
 } from "@/types/form";
 import {
   Box,
@@ -45,19 +46,28 @@ export default function FormBuilderContent() {
   const [mode, setMode] = useState<Mode>("design");
   const [formTitle, setFormTitle] = useState("未命名表單");
 
-  function normalizeItemsWithColumnLabel(input: CanvasItem[]) {
+  function normalizeLayoutVariant(
+    variant: LayoutVariant | undefined | null
+  ): LayoutVariant {
+    return variant === "plain" ? "plain" : "labeled";
+  }
+
+  function normalizeItemsWithContainerMeta(input: CanvasItem[]) {
     let hasChanged = false;
     const normalized = input.map((item) => {
       if (!isLayoutContainer(item)) return item;
+      const normalizedVariant = normalizeLayoutVariant(item.variant);
+      const variantChanged = item.variant !== normalizedVariant;
       let columnChanged = false;
       const columns = item.columns.map((col) => {
         if (col.label != null) return col;
         columnChanged = true;
         hasChanged = true;
-        return { ...col, label: "標題" };
+        return { ...col, label: normalizedVariant === "plain" ? "" : "標題" };
       });
-      if (!columnChanged) return item;
-      return { ...item, columns };
+      if (!columnChanged && !variantChanged) return item;
+      hasChanged = true;
+      return { ...item, variant: normalizedVariant, columns };
     });
     return hasChanged ? normalized : input;
   }
@@ -67,7 +77,7 @@ export default function FormBuilderContent() {
   ) {
     setItems((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      return normalizeItemsWithColumnLabel(next);
+      return normalizeItemsWithContainerMeta(next);
     });
   }
 
@@ -196,13 +206,21 @@ export default function FormBuilderContent() {
     if (!target) return;
 
     const data = source?.data as
-      | { type?: FormField["type"]; layoutType?: LayoutType; source?: string }
+      | {
+          type?: FormField["type"];
+          layoutType?: LayoutType;
+          layoutVariant?: LayoutVariant;
+          source?: string;
+        }
       | undefined;
 
     if (data?.source === "palette") {
       // 版面容器拖入畫布
       if (data.layoutType) {
-        const container = createLayoutContainer(data.layoutType);
+        const container = createLayoutContainer(
+          data.layoutType,
+          normalizeLayoutVariant(data.layoutVariant)
+        );
         setItemsNormalized((prev) => {
           const copy = [...prev];
           const insertIndex =
