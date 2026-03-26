@@ -10,7 +10,8 @@ export type FormFieldType =
   | "checkbox"
   | "radio"
   | "select"
-  | "ocr-list";
+  | "ocr-list"
+  | "labeled-input";
 export interface FormFieldOption {
   value: string;
   label: string;
@@ -48,11 +49,15 @@ export interface FormFieldOcrList extends FormFieldBase {
   type: "ocr-list";
   selectedOcr?: { id: number; name: string }[];
 }
+export interface FormFieldLabeledInput extends FormFieldBase {
+  type: "labeled-input";
+}
 export type FormField =
   | FormFieldTextLike
   | FormFieldCheckbox
   | FormFieldWithOptions
-  | FormFieldOcrList;
+  | FormFieldOcrList
+  | FormFieldLabeledInput;
 
 export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   text: "單行文字",
@@ -62,6 +67,7 @@ export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   radio: "單選",
   select: "下拉選單",
   "ocr-list": "OCR列表",
+  "labeled-input": "標題輸入欄",
 };
 
 export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
@@ -106,6 +112,14 @@ export function createField(type: FormFieldType): FormField {
         span,
       };
     case "ocr-list":
+      return {
+        id,
+        type,
+        label,
+        span,
+        required: false,
+      };
+    case "labeled-input":
       return {
         id,
         type,

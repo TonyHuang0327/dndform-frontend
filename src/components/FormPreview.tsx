@@ -147,6 +147,34 @@ function FieldBody({
     );
   }
 
+  if (field.type === "labeled-input") {
+    return (
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ width: LABEL_WIDTH, pr: 1 }}>
+          <Typography variant="body1">{field.label || "標題"}</Typography>
+        </Box>
+        <TextField
+          fullWidth
+          aria-label={ariaLabel}
+          required={field.required}
+          size="small"
+          variant="outlined"
+          sx={{
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "& .MuiOutlinedInput-input": {
+              padding: 0,
+            },
+            "& .MuiOutlinedInput-root": {
+              padding: 0,
+            },
+          }}
+        />
+      </Box>
+    );
+  }
+
   return null;
 }
 
@@ -270,6 +298,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                           key={field.id}
                           sx={{
                             display: "flex",
+                            flex: 1,
                           }}
                         >
                           <Box sx={{ flex: 1, p: 1 }}>

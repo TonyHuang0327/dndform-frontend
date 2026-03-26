@@ -2,7 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import type { FormField } from "@/types/form";
-import { Box, ButtonBase, Card, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  ButtonBase,
+  Card,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useSortable } from "@dnd-kit/react/sortable";
@@ -112,18 +119,45 @@ export default function SortableFieldItem({
         <DragIndicatorIcon fontSize="small" />
       </IconButton>
       {/* 卡片主體：點擊選取並顯示屬性編輯 */}
-      <ButtonBase
-        onClick={() => onSelect(field.id)}
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          textAlign: "left",
-        }}
-      >
-        <Typography variant="body1">{DEFAULT_LABELS[field.type]}</Typography>
-      </ButtonBase>
+      {field.type === "labeled-input" ? (
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            minWidth: 0,
+          }}
+        >
+          <TextField
+            value={field.label}
+            onChange={(e) => onChange(field.id, { label: e.target.value })}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label="標題輸入欄-標題"
+            variant="outlined"
+            size="small"
+            sx={{
+              width: "100%",
+              "& .MuiInputBase-input": {
+                padding: "6px 8px",
+              },
+            }}
+          />
+        </Box>
+      ) : (
+        <ButtonBase
+          onClick={() => onSelect(field.id)}
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            textAlign: "left",
+          }}
+        >
+          <Typography variant="body1">{DEFAULT_LABELS[field.type]}</Typography>
+        </ButtonBase>
+      )}
       {/* 刪除欄位 */}
       <IconButton
         size="small"
