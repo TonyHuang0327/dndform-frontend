@@ -153,7 +153,7 @@ export default function SortableFieldItem({
               bgcolor: "text.disabled",
             },
           }}
-          role="separator"
+          role="slider"
           aria-orientation="vertical"
           aria-valuenow={span}
           aria-valuemin={3}

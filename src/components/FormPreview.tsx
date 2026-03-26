@@ -159,6 +159,14 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
       </Box>
     );
   }
+  const topLevelOrderById = new Map<string, number>();
+  let order = 0;
+  for (const candidate of items) {
+    if (isFormField(candidate)) {
+      order += 1;
+      topLevelOrderById.set(candidate.id, order);
+    }
+  }
 
   return (
     <Grid
@@ -277,13 +285,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
         }
 
         if (isFormField(item)) {
-          const topLevelFieldOrder =
-            items
-              .slice(
-                0,
-                items.findIndex((candidate) => candidate.id === item.id) + 1
-              )
-              .filter((candidate) => isFormField(candidate)).length || 1;
+          const topLevelFieldOrder = topLevelOrderById.get(item.id);
 
           return (
             <Grid

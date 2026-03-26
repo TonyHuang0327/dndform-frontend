@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { move } from "@dnd-kit/helpers";
 import ComponentPalette from "@/components/ComponentPalette";
 import FieldPropertyEditor from "@/components/FieldPropertyEditor";
@@ -32,6 +32,12 @@ import { DragDropProvider, type DragDropEventHandlers } from "@dnd-kit/react";
 import CloseIcon from "@mui/icons-material/Close";
 
 type Mode = "design" | "preview";
+type DragEndEventArg = Parameters<
+  NonNullable<DragDropEventHandlers["onDragEnd"]>
+>[0];
+type DragOverEventArg = Parameters<
+  NonNullable<DragDropEventHandlers["onDragOver"]>
+>[0];
 
 export default function FormBuilderContent() {
   const [items, setItems] = useState<CanvasItem[]>([]);
@@ -56,14 +62,19 @@ export default function FormBuilderContent() {
     return hasChanged ? normalized : input;
   }
 
-  useEffect(() => {
-    setItems((prev) => normalizeItemsWithColumnLabel(prev));
-  }, []);
+  function setItemsNormalized(
+    updater: CanvasItem[] | ((prev: CanvasItem[]) => CanvasItem[])
+  ) {
+    setItems((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      return normalizeItemsWithColumnLabel(next);
+    });
+  }
 
   // ── 巢狀查找與更新 ───────────────────────────────────────────
 
   function handleChange(id: string, patch: Partial<FormField>) {
-    setItems((prev) =>
+    setItemsNormalized((prev) =>
       prev.map((item) => {
         if (isFormField(item) && item.id === id) {
           return { ...item, ...patch } as FormField;
@@ -85,7 +96,7 @@ export default function FormBuilderContent() {
   }
 
   function handleDelete(id: string) {
-    setItems((prev) =>
+    setItemsNormalized((prev) =>
       prev
         .filter((item) => !(isFormField(item) && item.id === id))
         .filter((item) => !(isLayoutContainer(item) && item.id === id))
@@ -108,7 +119,7 @@ export default function FormBuilderContent() {
     columnId: string,
     label: string
   ) {
-    setItems((prev) =>
+    setItemsNormalized((prev) =>
       prev.map((item) => {
         if (!isLayoutContainer(item) || item.id !== containerId) return item;
         return {
@@ -132,7 +143,7 @@ export default function FormBuilderContent() {
   }
 
   function insertFieldIntoColumn(columnId: string, field: FormField) {
-    setItems((prev) =>
+    setItemsNormalized((prev) =>
       prev.map((item) => {
         if (!isLayoutContainer(item)) return item;
         return {
@@ -145,6 +156,36 @@ export default function FormBuilderContent() {
         };
       })
     );
+  }
+
+  function applyCanvasSort(
+    prev: CanvasItem[],
+    event: DragEndEventArg | DragOverEventArg
+  ) {
+    const { source, target } = event.operation;
+    if (!source?.id || !target?.id) return prev;
+
+    // 同一 column 內排序
+    if (isSameColumn(source.id as string, target.id as string, prev)) {
+      const meta = findFieldInItems(source.id as string, prev);
+      if (!meta?.columnId) return prev;
+      const colId = meta.columnId;
+      return prev.map((item) => {
+        if (!isLayoutContainer(item)) return item;
+        return {
+          ...item,
+          columns: item.columns.map((col) => {
+            if (col.id !== colId) return col;
+            return { ...col, fields: move(col.fields, event) };
+          }),
+        };
+      });
+    }
+
+    // 頂層 CanvasItem 排序
+    if (!isCanvasItemId(source.id, prev)) return prev;
+    if (!(target.id === CANVAS_ID || isCanvasItemId(target.id, prev))) return prev;
+    return move(prev, event);
   }
 
   // ── Drag Handlers ─────────────────────────────────────────────
@@ -162,7 +203,7 @@ export default function FormBuilderContent() {
       // 版面容器拖入畫布
       if (data.layoutType) {
         const container = createLayoutContainer(data.layoutType);
-        setItems((prev) => {
+        setItemsNormalized((prev) => {
           const copy = [...prev];
           const insertIndex =
             target.id === CANVAS_ID
@@ -181,7 +222,7 @@ export default function FormBuilderContent() {
         if (isColumnId(target.id)) {
           insertFieldIntoColumn(target.id as string, createField(fieldType));
         } else {
-          setItems((prev) => {
+          setItemsNormalized((prev) => {
             const copy = [...prev];
             const insertIndex =
               target.id === CANVAS_ID
@@ -197,32 +238,7 @@ export default function FormBuilderContent() {
     }
 
     // 畫布內排序
-    setItems((prev) => {
-      if (!source?.id || !target?.id) return prev;
-
-      // 同一 column 內排序
-      if (isSameColumn(source.id as string, target.id as string, prev)) {
-        const meta = findFieldInItems(source.id as string, prev);
-        if (!meta?.columnId) return prev;
-        const colId = meta.columnId;
-        return prev.map((item) => {
-          if (!isLayoutContainer(item)) return item;
-          return {
-            ...item,
-            columns: item.columns.map((col) => {
-              if (col.id !== colId) return col;
-              return { ...col, fields: move(col.fields, event) };
-            }),
-          };
-        });
-      }
-
-      // 頂層 CanvasItem 排序
-      if (!isCanvasItemId(source.id, prev)) return prev;
-      if (!(target.id === CANVAS_ID || isCanvasItemId(target.id, prev)))
-        return prev;
-      return move(prev, event);
-    });
+    setItemsNormalized((prev) => applyCanvasSort(prev, event));
   };
 
   const handleDragOver: DragDropEventHandlers["onDragOver"] = (event) => {
@@ -234,32 +250,7 @@ export default function FormBuilderContent() {
     const data = source?.data as { source?: string } | undefined;
     if (data?.source === "palette") return;
 
-    setItems((prev) => {
-      if (!source?.id || !target?.id) return prev;
-
-      // 同一 column 內即時排序
-      if (isSameColumn(source.id as string, target.id as string, prev)) {
-        const meta = findFieldInItems(source.id as string, prev);
-        if (!meta?.columnId) return prev;
-        const colId = meta.columnId;
-        return prev.map((item) => {
-          if (!isLayoutContainer(item)) return item;
-          return {
-            ...item,
-            columns: item.columns.map((col) => {
-              if (col.id !== colId) return col;
-              return { ...col, fields: move(col.fields, event) };
-            }),
-          };
-        });
-      }
-
-      // 頂層即時排序
-      if (!isCanvasItemId(source.id, prev)) return prev;
-      if (!(target.id === CANVAS_ID || isCanvasItemId(target.id, prev)))
-        return prev;
-      return move(prev, event);
-    });
+    setItemsNormalized((prev) => applyCanvasSort(prev, event));
   };
 
   // ── Print ────────────────────────────────────────────────────
@@ -322,7 +313,7 @@ export default function FormBuilderContent() {
 
           <Drawer
             anchor="right"
-            open={Boolean(selectedId)}
+            open={Boolean(selectedField)}
             onClose={() => setSelectedId(null)}
           >
             <Box sx={{ width: 360, p: 2 }}>

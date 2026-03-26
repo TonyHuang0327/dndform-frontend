@@ -21,18 +21,7 @@ export interface LayoutContainerItemProps {
 }
 
 const LABEL_WIDTH = 150;
-
-function ColumnSlot({
-  containerId,
-  columnId,
-  columnLabel,
-  fields,
-  selectedId,
-  onSelect,
-  onDelete,
-  onChange,
-  onChangeColumnLabel,
-}: {
+type ColumnSlotProps = {
   containerId: string;
   columnId: string;
   columnLabel: string;
@@ -46,7 +35,18 @@ function ColumnSlot({
     columnId: string,
     label: string
   ) => void;
-}) {
+};
+function ColumnSlot({
+  containerId,
+  columnId,
+  columnLabel,
+  fields,
+  selectedId,
+  onSelect,
+  onDelete,
+  onChange,
+  onChangeColumnLabel,
+}: ColumnSlotProps) {
   const { ref, isDropTarget } = useDroppable({ id: columnId });
 
   return (
@@ -78,6 +78,7 @@ function ColumnSlot({
           }
           onMouseDown={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
+          aria-label="欄位標題"
           variant="outlined"
           sx={{
             "& .MuiInputBase-input": {
