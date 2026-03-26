@@ -19,12 +19,20 @@ import {
   Typography,
 } from "@mui/material";
 
+const LABEL_WIDTH = 150;
+
 export interface FormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
 }
 
-function FieldBody({ field, ariaLabel }: { field: FormField; ariaLabel: string }) {
+function FieldBody({
+  field,
+  ariaLabel,
+}: {
+  field: FormField;
+  ariaLabel: string;
+}) {
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -203,25 +211,44 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                     sx={{
                       borderRight: isLastCol ? "none" : "1px solid black",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: "row",
                     }}
                   >
                     <Box
                       sx={{
                         p: 1,
-                        borderBottom: "1px solid black",
+                        width: LABEL_WIDTH,
                         backgroundColor: "grey.50",
+                        borderRight: "1px solid black",
                       }}
                     >
-                      <Typography variant="body2">
+                      <Typography variant="body1">
                         {col.label?.trim() ? col.label : "未命名欄位"}
                       </Typography>
                     </Box>
                     {col.fields.length === 0 ? (
-                      <Box sx={{ minHeight: 40, p: 1 }}>
-                        <Typography variant="caption" color="text.disabled">
-                          尚未加入元件
-                        </Typography>
+                      <Box sx={{ p: 1, flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          aria-label={`${
+                            col.label?.trim() ? col.label : "未命名欄位"
+                          }-尚未加入元件`}
+                          placeholder="尚未加入元件-預設為文字輸入框"
+                          sx={{
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            "& .Mui-focused": {
+                              backgroundColor: "aliceblue",
+                            },
+                            "& .MuiOutlinedInput-input": {
+                              padding: 0,
+                            },
+                            "& .MuiOutlinedInput-root": {
+                              padding: 0,
+                            },
+                          }}
+                        />
                       </Box>
                     ) : (
                       col.fields.map((field, fieldIndex) => (
@@ -229,14 +256,14 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                           key={field.id}
                           sx={{
                             display: "flex",
-                            borderTop:
-                              fieldIndex > 0 ? "1px solid black" : "none",
                           }}
                         >
                           <Box sx={{ flex: 1, p: 1 }}>
                             <FieldBody
                               field={field}
-                              ariaLabel={`${col.label?.trim() ? col.label : "未命名欄位"}-${field.type}-${fieldIndex + 1}`}
+                              ariaLabel={`${
+                                col.label?.trim() ? col.label : "未命名欄位"
+                              }-${field.type}-${fieldIndex + 1}`}
                             />
                           </Box>
                         </Box>
@@ -252,7 +279,10 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
         if (isFormField(item)) {
           const topLevelFieldOrder =
             items
-              .slice(0, items.findIndex((candidate) => candidate.id === item.id) + 1)
+              .slice(
+                0,
+                items.findIndex((candidate) => candidate.id === item.id) + 1
+              )
               .filter((candidate) => isFormField(candidate)).length || 1;
 
           return (
