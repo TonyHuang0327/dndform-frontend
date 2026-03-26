@@ -80,13 +80,6 @@ export default function FieldPropertyEditor({
         屬性編輯
       </Typography>
 
-      <TextField
-        label="標題"
-        size="small"
-        value={field.label}
-        onChange={(e) => update({ label: e.target.value })}
-        fullWidth
-      />
       {!hasOcrList && (
         <FormControlLabel
           control={
