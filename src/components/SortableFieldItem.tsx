@@ -122,10 +122,7 @@ export default function SortableFieldItem({
           textAlign: "left",
         }}
       >
-        <Typography variant="body1">{field.label}</Typography>
-        {/* <Typography variant="caption" color="text.secondary">
-          {DEFAULT_LABELS[field.type]}
-        </Typography> */}
+        <Typography variant="body1">{DEFAULT_LABELS[field.type]}</Typography>
       </ButtonBase>
       {/* 刪除欄位 */}
       <IconButton

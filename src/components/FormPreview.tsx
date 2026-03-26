@@ -18,32 +18,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-const LABEL_WIDTH = 200;
-
-const FieldLabel = ({ field }: { field: FormField }) => {
-  return (
-    <Box
-      sx={{
-        width: LABEL_WIDTH,
-        minWidth: LABEL_WIDTH,
-        flexShrink: 0,
-        borderRight: "1px solid black",
-        display: "flex",
-        p: 1,
-        alignItems: "center",
-      }}
-    >
-      <Typography id={`${field.id}-label`}>{field.label}</Typography>
-    </Box>
-  );
-};
 
 export interface FormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
 }
 
-function FieldBody({ field }: { field: FormField }) {
+function FieldBody({ field, ariaLabel }: { field: FormField; ariaLabel: string }) {
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -52,7 +33,7 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <TextField
         fullWidth
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         type={field.type === "number" ? "number" : "text"}
         multiline={field.type === "textarea"}
         minRows={field.type === "textarea" ? 3 : undefined}
@@ -83,7 +64,7 @@ function FieldBody({ field }: { field: FormField }) {
       <Checkbox
         defaultChecked={field.defaultChecked}
         required={field.required}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         sx={{
           p: 0,
         }}
@@ -95,7 +76,7 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <RadioGroup
         defaultValue={field.options[0]?.value}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         sx={{
           "& .MuiRadio-root": {
             padding: 0,
@@ -119,7 +100,7 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <Select
         defaultValue={field.options[0]?.value}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         required={field.required}
         size="small"
         sx={{
@@ -225,8 +206,23 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                       flexDirection: "column",
                     }}
                   >
+                    <Box
+                      sx={{
+                        p: 1,
+                        borderBottom: "1px solid black",
+                        backgroundColor: "grey.50",
+                      }}
+                    >
+                      <Typography variant="body2">
+                        {col.label?.trim() ? col.label : "未命名欄位"}
+                      </Typography>
+                    </Box>
                     {col.fields.length === 0 ? (
-                      <Box sx={{ minHeight: 40 }} />
+                      <Box sx={{ minHeight: 40, p: 1 }}>
+                        <Typography variant="caption" color="text.disabled">
+                          尚未加入元件
+                        </Typography>
+                      </Box>
                     ) : (
                       col.fields.map((field, fieldIndex) => (
                         <Box
@@ -237,9 +233,11 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                               fieldIndex > 0 ? "1px solid black" : "none",
                           }}
                         >
-                          <FieldLabel field={field} />
                           <Box sx={{ flex: 1, p: 1 }}>
-                            <FieldBody field={field} />
+                            <FieldBody
+                              field={field}
+                              ariaLabel={`${col.label?.trim() ? col.label : "未命名欄位"}-${field.type}-${fieldIndex + 1}`}
+                            />
                           </Box>
                         </Box>
                       ))
@@ -252,6 +250,11 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
         }
 
         if (isFormField(item)) {
+          const topLevelFieldOrder =
+            items
+              .slice(0, items.findIndex((candidate) => candidate.id === item.id) + 1)
+              .filter((candidate) => isFormField(candidate)).length || 1;
+
           return (
             <Grid
               key={item.id}
@@ -261,9 +264,11 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
               alignItems="stretch"
               sx={{ borderBottom: "1px solid black" }}
             >
-              <FieldLabel field={item} />
               <Box sx={{ flex: 1, p: 1 }}>
-                <FieldBody field={item} />
+                <FieldBody
+                  field={item}
+                  ariaLabel={`${item.type}-${topLevelFieldOrder}`}
+                />
               </Box>
             </Grid>
           );
