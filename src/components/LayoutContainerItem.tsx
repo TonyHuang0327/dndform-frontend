@@ -1,8 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/react";
-import { Box, Grid, IconButton, TextField, Typography } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Box, Grid, TextField, Typography } from "@mui/material";
 import type { FormField, LayoutContainer } from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
 
@@ -14,24 +13,39 @@ export interface LayoutContainerItemProps {
   /** 刪除容器本身（傳 container.id）或容器內欄位（傳 field.id） */
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  onChangeColumnLabel: (
+    containerId: string,
+    columnId: string,
+    label: string
+  ) => void;
 }
 
 const LABEL_WIDTH = 150;
 
 function ColumnSlot({
+  containerId,
   columnId,
+  columnLabel,
   fields,
   selectedId,
   onSelect,
   onDelete,
   onChange,
+  onChangeColumnLabel,
 }: {
+  containerId: string;
   columnId: string;
+  columnLabel: string;
   fields: FormField[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  onChangeColumnLabel: (
+    containerId: string,
+    columnId: string,
+    label: string
+  ) => void;
 }) {
   const { ref, isDropTarget } = useDroppable({ id: columnId });
 
@@ -58,7 +72,12 @@ function ColumnSlot({
       >
         <TextField
           id={`${columnId}-label`}
-          defaultValue="標題"
+          value={columnLabel}
+          onChange={(e) =>
+            onChangeColumnLabel(containerId, columnId, e.target.value)
+          }
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           variant="outlined"
           sx={{
             "& .MuiInputBase-input": {
@@ -112,6 +131,7 @@ export default function LayoutContainerItem({
   onSelect,
   onDelete,
   onChange,
+  onChangeColumnLabel,
 }: LayoutContainerItemProps) {
   return (
     <Box
@@ -140,12 +160,15 @@ export default function LayoutContainerItem({
         {container.columns.map((col) => (
           <Box key={col.id} sx={{ flex: col.span }}>
             <ColumnSlot
+              containerId={container.id}
               columnId={col.id}
+              columnLabel={col.label ?? "標題"}
               fields={col.fields}
               selectedId={selectedId}
               onSelect={onSelect}
               onDelete={onDelete}
               onChange={onChange}
+              onChangeColumnLabel={onChangeColumnLabel}
             />
           </Box>
         ))}

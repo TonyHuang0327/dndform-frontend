@@ -103,6 +103,24 @@ export default function FormBuilderContent() {
     setSelectedId((current) => (current === id ? null : current));
   }
 
+  function handleChangeColumnLabel(
+    containerId: string,
+    columnId: string,
+    label: string
+  ) {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (!isLayoutContainer(item) || item.id !== containerId) return item;
+        return {
+          ...item,
+          columns: item.columns.map((col) =>
+            col.id === columnId ? { ...col, label } : col
+          ),
+        };
+      })
+    );
+  }
+
   // ── 拖曳：判斷 column 是否為目標 ────────────────────────────
 
   function isColumnId(id: unknown): boolean {
@@ -295,6 +313,7 @@ export default function FormBuilderContent() {
                 onSelect={setSelectedId}
                 onDelete={handleDelete}
                 onChange={handleChange}
+                onChangeColumnLabel={handleChangeColumnLabel}
                 formTitle={formTitle}
                 onChangeFormTitle={setFormTitle}
               />

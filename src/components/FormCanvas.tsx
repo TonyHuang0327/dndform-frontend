@@ -15,6 +15,11 @@ export interface FormCanvasProps {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  onChangeColumnLabel: (
+    containerId: string,
+    columnId: string,
+    label: string
+  ) => void;
   formTitle: string;
   onChangeFormTitle: (title: string) => void;
 }
@@ -25,6 +30,7 @@ export default function FormCanvas({
   onSelect,
   onDelete,
   onChange,
+  onChangeColumnLabel,
   formTitle,
   onChangeFormTitle,
 }: FormCanvasProps) {
@@ -71,6 +77,7 @@ export default function FormCanvas({
                   onSelect={onSelect}
                   onDelete={onDelete}
                   onChange={onChange}
+                  onChangeColumnLabel={onChangeColumnLabel}
                 />
               ) : (
                 <SortableFieldItem
