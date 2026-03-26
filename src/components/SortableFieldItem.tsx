@@ -17,6 +17,7 @@ export interface SortableFieldItemProps {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
+  disableResize?: boolean; // 在容器格子內傳入 true 以停用右側 resize handle
 }
 
 export default function SortableFieldItem({
@@ -26,6 +27,7 @@ export default function SortableFieldItem({
   onSelect,
   onDelete,
   onChange,
+  disableResize = false,
 }: SortableFieldItemProps) {
   const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
     id: field.id,
@@ -87,13 +89,14 @@ export default function SortableFieldItem({
         targetRef(node);
       }}
       sx={{
-        p: 1.5,
+        p: 0,
         border: 2,
         borderColor: isSelected ? "primary.main" : "transparent",
         display: "flex",
         alignItems: "center",
         gap: 1,
         opacity: isDragging ? 0.6 : 1,
+        width: "100%",
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}
@@ -119,10 +122,7 @@ export default function SortableFieldItem({
           textAlign: "left",
         }}
       >
-        <Typography variant="body1">{field.label}</Typography>
-        <Typography variant="caption" color="text.secondary">
-          {DEFAULT_LABELS[field.type]}
-        </Typography>
+        <Typography variant="body1">{DEFAULT_LABELS[field.type]}</Typography>
       </ButtonBase>
       {/* 刪除欄位 */}
       <IconButton
@@ -133,32 +133,34 @@ export default function SortableFieldItem({
       >
         <DeleteIcon fontSize="small" />
       </IconButton>
-      {/* 右側拖拉把手：拖移改變 span 大小 */}
-      <Box
-        onMouseDown={handleResizeMouseDown}
-        sx={{
-          ml: 1,
-          alignSelf: "stretch",
-          width: 8,
-          cursor: "col-resize",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          "&::before": {
-            content: '""',
-            display: "block",
-            width: 2,
-            height: 20,
-            bgcolor: "text.disabled",
-          },
-        }}
-        role="separator"
-        aria-orientation="vertical"
-        aria-valuenow={span}
-        aria-valuemin={3}
-        aria-valuemax={12}
-        aria-label="拖拉調整欄位寬度"
-      />
+      {/* 右側拖拉把手：拖移改變 span 大小；容器格子內由 disableResize 停用 */}
+      {!disableResize && (
+        <Box
+          onMouseDown={handleResizeMouseDown}
+          sx={{
+            ml: 1,
+            alignSelf: "stretch",
+            width: 8,
+            cursor: "col-resize",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            "&::before": {
+              content: '""',
+              display: "block",
+              width: 2,
+              height: 20,
+              bgcolor: "text.disabled",
+            },
+          }}
+          role="slider"
+          aria-orientation="vertical"
+          aria-valuenow={span}
+          aria-valuemin={3}
+          aria-valuemax={12}
+          aria-label="拖拉調整欄位寬度"
+        />
+      )}
     </Card>
   );
 }

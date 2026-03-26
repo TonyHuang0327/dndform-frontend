@@ -1,6 +1,11 @@
 "use client";
 
-import type { FormField } from "@/types/form";
+import {
+  type CanvasItem,
+  type FormField,
+  isLayoutContainer,
+  isFormField,
+} from "@/types/form";
 import {
   Box,
   Checkbox,
@@ -14,57 +19,20 @@ import {
   Typography,
 } from "@mui/material";
 
-const FieldLabel = ({ field }: { field: FormField }) => {
-  return (
-    <Grid
-      size={2}
-      sx={{
-        borderRight: "1px solid black",
-        display: "flex",
-        p: 1,
-        alignItems: "center",
-      }}
-    >
-      <Typography id={`${field.id}-label`}>{field.label}</Typography>
-    </Grid>
-  );
-};
+const LABEL_WIDTH = 150;
 
 export interface FormPreviewProps {
-  fields: FormField[];
+  items: CanvasItem[];
   formTitle: string;
 }
 
-function getSpan(field: FormField) {
-  return Math.min(12, Math.max(1, field.span ?? 12));
-}
-
-function groupFieldsIntoRows(fields: FormField[]) {
-  const rows: FormField[][] = [];
-  let current: FormField[] = [];
-  let used = 0;
-
-  for (const field of fields) {
-    const span = getSpan(field);
-    if (used + span > 12 && current.length > 0) {
-      rows.push(current);
-      current = [];
-      used = 0;
-    }
-    current.push(field);
-    used += span;
-    if (used === 12) {
-      rows.push(current);
-      current = [];
-      used = 0;
-    }
-  }
-
-  if (current.length > 0) rows.push(current);
-  return rows;
-}
-
-function FieldBody({ field }: { field: FormField }) {
+function FieldBody({
+  field,
+  ariaLabel,
+}: {
+  field: FormField;
+  ariaLabel: string;
+}) {
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -73,7 +41,7 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <TextField
         fullWidth
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         type={field.type === "number" ? "number" : "text"}
         multiline={field.type === "textarea"}
         minRows={field.type === "textarea" ? 3 : undefined}
@@ -104,7 +72,10 @@ function FieldBody({ field }: { field: FormField }) {
       <Checkbox
         defaultChecked={field.defaultChecked}
         required={field.required}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
+        sx={{
+          p: 0,
+        }}
       />
     );
   }
@@ -113,7 +84,13 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <RadioGroup
         defaultValue={field.options[0]?.value}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
+        sx={{
+          "& .MuiRadio-root": {
+            padding: 0,
+            paddingLeft: 1,
+          },
+        }}
       >
         {field.options.map((opt) => (
           <FormControlLabel
@@ -131,11 +108,12 @@ function FieldBody({ field }: { field: FormField }) {
     return (
       <Select
         defaultValue={field.options[0]?.value}
-        aria-labelledby={`${field.id}-label`}
+        aria-label={ariaLabel}
         required={field.required}
         size="small"
         sx={{
           "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+          "& .MuiOutlinedInput-input": { padding: 0 },
         }}
       >
         {field.options.map((opt) => (
@@ -171,8 +149,8 @@ function FieldBody({ field }: { field: FormField }) {
   return null;
 }
 
-export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
-  if (fields.length === 0) {
+export default function FormPreview({ items, formTitle }: FormPreviewProps) {
+  if (items.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
@@ -180,6 +158,14 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
         </Typography>
       </Box>
     );
+  }
+  const topLevelOrderById = new Map<string, number>();
+  let order = 0;
+  for (const candidate of items) {
+    if (isFormField(candidate)) {
+      order += 1;
+      topLevelOrderById.set(candidate.id, order);
+    }
   }
 
   return (
@@ -189,66 +175,138 @@ export default function FormPreview({ fields, formTitle }: FormPreviewProps) {
       sx={{
         borderBottom: "1px solid black",
         borderLeft: "1px solid black",
+        borderRight: "1px solid black",
+        aspectRatio: "457/647",
+        width: "70%",
+        boxSizing: "border-box",
+        margin: "0 auto",
+        alignContent: "flex-start",
       }}
     >
+      {/* 表單標題列 */}
       <Grid
         size={12}
         sx={{
           p: 1,
           borderTop: "1px solid black",
-          borderRight: "1px solid black",
+          borderBottom: "1px solid black",
           textAlign: "center",
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           {formTitle}
         </Typography>
       </Grid>
-      {groupFieldsIntoRows(fields).map((row, rowIndex) => {
-        const used = row.reduce((sum, f) => sum + getSpan(f), 0);
-        const remaining = Math.max(0, 12 - used);
 
-        return (
-          <Grid
-            key={`row-${rowIndex}`}
-            container
-            spacing={0}
-            size={12}
-            alignItems="stretch"
-            sx={{
-              borderTop: "1px solid black",
-            }}
-          >
-            {row.map((field) => {
-              const span = getSpan(field);
-              return (
-                <Grid
-                  key={field.id}
-                  container
-                  spacing={0}
-                  size={span}
-                  sx={{
-                    borderRight: "1px solid black",
-                  }}
-                >
-                  <FieldLabel field={field} />
-                  <Grid size={10} sx={{ p: 1 }}>
-                    <FieldBody field={field} />
+      {/* 逐項渲染 */}
+      {items.map((item) => {
+        if (isLayoutContainer(item)) {
+          return (
+            <Grid
+              key={item.id}
+              container
+              spacing={0}
+              size={12}
+              alignItems="stretch"
+              sx={{ borderBottom: "1px solid black" }}
+            >
+              {item.columns.map((col, colIndex) => {
+                const isLastCol = colIndex === item.columns.length - 1;
+                return (
+                  <Grid
+                    key={col.id}
+                    size={col.span}
+                    sx={{
+                      borderRight: isLastCol ? "none" : "1px solid black",
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1,
+                        width: LABEL_WIDTH,
+                        backgroundColor: "grey.50",
+                        borderRight: "1px solid black",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        {col.label?.trim() ? col.label : "未命名欄位"}
+                      </Typography>
+                    </Box>
+                    {col.fields.length === 0 ? (
+                      <Box sx={{ p: 1, flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          aria-label={`${
+                            col.label?.trim() ? col.label : "未命名欄位"
+                          }-尚未加入元件`}
+                          placeholder="尚未加入元件-預設為文字輸入框"
+                          sx={{
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            "& .Mui-focused": {
+                              backgroundColor: "aliceblue",
+                            },
+                            "& .MuiOutlinedInput-input": {
+                              padding: 0,
+                            },
+                            "& .MuiOutlinedInput-root": {
+                              padding: 0,
+                            },
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      col.fields.map((field, fieldIndex) => (
+                        <Box
+                          key={field.id}
+                          sx={{
+                            display: "flex",
+                          }}
+                        >
+                          <Box sx={{ flex: 1, p: 1 }}>
+                            <FieldBody
+                              field={field}
+                              ariaLabel={`${
+                                col.label?.trim() ? col.label : "未命名欄位"
+                              }-${field.type}-${fieldIndex + 1}`}
+                            />
+                          </Box>
+                        </Box>
+                      ))
+                    )}
                   </Grid>
-                </Grid>
-              );
-            })}
+                );
+              })}
+            </Grid>
+          );
+        }
 
-            {remaining > 0 && (
-              <Grid
-                size={remaining}
-                sx={{
-                  borderRight: "1px solid black",
-                }}
-              />
-            )}
-          </Grid>
-        );
+        if (isFormField(item)) {
+          const topLevelFieldOrder = topLevelOrderById.get(item.id);
+
+          return (
+            <Grid
+              key={item.id}
+              container
+              spacing={0}
+              size={12}
+              alignItems="stretch"
+              sx={{ borderBottom: "1px solid black" }}
+            >
+              <Box sx={{ flex: 1, p: 1 }}>
+                <FieldBody
+                  field={item}
+                  ariaLabel={`${item.type}-${topLevelFieldOrder}`}
+                />
+              </Box>
+            </Grid>
+          );
+        }
+
+        return null;
       })}
     </Grid>
   );
