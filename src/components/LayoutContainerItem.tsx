@@ -1,7 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/react";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, Grid, IconButton, TextField, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { FormField, LayoutContainer } from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
@@ -15,6 +15,8 @@ export interface LayoutContainerItemProps {
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
 }
+
+const LABEL_WIDTH = 150;
 
 function ColumnSlot({
   columnId,
@@ -34,43 +36,73 @@ function ColumnSlot({
   const { ref, isDropTarget } = useDroppable({ id: columnId });
 
   return (
-    <Box
+    <Grid
+      container
       ref={ref}
       sx={{
-        minHeight: 60,
-        border: "1px dashed",
+        border: "1px solid",
         borderColor: isDropTarget ? "primary.main" : "grey.400",
         bgcolor: isDropTarget ? "action.hover" : "background.paper",
-        borderRadius: 1,
-        p: 0.5,
-        display: "flex",
-        flexDirection: "column",
-        gap: 0.5,
       }}
     >
-      {fields.length === 0 ? (
-        <Typography
-          variant="caption"
-          color="text.disabled"
-          sx={{ p: 1, display: "block", textAlign: "center" }}
-        >
-          拖入欄位
-        </Typography>
-      ) : (
-        fields.map((field, index) => (
-          <SortableFieldItem
-            key={field.id}
-            field={field}
-            index={index}
-            isSelected={selectedId === field.id}
-            onSelect={onSelect}
-            onDelete={onDelete}
-            onChange={onChange}
-            disableResize
-          />
-        ))
-      )}
-    </Box>
+      <Box
+        sx={{
+          width: LABEL_WIDTH,
+          minWidth: LABEL_WIDTH,
+          flexShrink: 0,
+          borderRight: "1px solid black",
+          display: "flex",
+          p: 1,
+          alignItems: "center",
+        }}
+      >
+        <TextField
+          id={`${columnId}-label`}
+          defaultValue="標題"
+          variant="outlined"
+          sx={{
+            "& .MuiInputBase-input": {
+              padding: 0,
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "& .Mui-focused": {
+              backgroundColor: "aliceblue",
+            },
+          }}
+        />
+      </Box>
+
+      <Box
+        sx={{
+          flex: 1,
+        }}
+      >
+        {fields.length === 0 ? (
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{ textAlign: "center", p: 1, display: "block" }}
+          >
+            拖入欄位
+          </Typography>
+        ) : (
+          fields.map((field, index) => (
+            <SortableFieldItem
+              key={field.id}
+              field={field}
+              index={index}
+              isSelected={selectedId === field.id}
+              onSelect={onSelect}
+              onDelete={onDelete}
+              onChange={onChange}
+              disableResize
+            />
+          ))
+        )}
+      </Box>
+    </Grid>
   );
 }
 
@@ -93,7 +125,7 @@ export default function LayoutContainerItem({
       }}
     >
       {/* 右上角刪除容器按鈕 */}
-      <IconButton
+      {/* <IconButton
         size="small"
         color="error"
         onClick={() => onDelete(container.id)}
@@ -101,10 +133,10 @@ export default function LayoutContainerItem({
         sx={{ position: "absolute", top: 4, right: 4, zIndex: 1 }}
       >
         <DeleteIcon fontSize="small" />
-      </IconButton>
+      </IconButton> */}
 
       {/* 格子區域（橫向排列） */}
-      <Box sx={{ display: "flex", gap: 1, pt: 1 }}>
+      <Box sx={{ display: "flex", gap: 1 }}>
         {container.columns.map((col) => (
           <Box key={col.id} sx={{ flex: col.span }}>
             <ColumnSlot

@@ -127,6 +127,7 @@ export interface LayoutColumn {
   id: string;
   /** 1~12，同一容器內所有 span 加總等於 12 */
   span: number;
+  label?: string;
   fields: FormField[];
 }
 
@@ -145,9 +146,7 @@ export type CanvasItem = FormField | LayoutContainer;
 
 // ── Type Guards ───────────────────────────────────────────────
 
-export function isLayoutContainer(
-  item: CanvasItem
-): item is LayoutContainer {
+export function isLayoutContainer(item: CanvasItem): item is LayoutContainer {
   return item.type === "layout";
 }
 
@@ -161,15 +160,12 @@ export function isFormField(item: CanvasItem): item is FormField {
 
 // ── Layout Factory ────────────────────────────────────────────
 
-export type LayoutType = "2col" | "3col" | "4col";
+export type LayoutType = "1col" | "2col";
 
-export function createLayoutContainer(
-  layoutType: LayoutType
-): LayoutContainer {
+export function createLayoutContainer(layoutType: LayoutType): LayoutContainer {
   const counts: Record<LayoutType, number> = {
+    "1col": 1,
     "2col": 2,
-    "3col": 3,
-    "4col": 4,
   };
   const count = counts[layoutType];
   const span = 12 / count;
@@ -179,6 +175,7 @@ export function createLayoutContainer(
     columns: Array.from({ length: count }, () => ({
       id: crypto.randomUUID(),
       span,
+      label: "標題",
       fields: [],
     })),
   };
@@ -193,7 +190,11 @@ export function createLayoutContainer(
 export function findFieldInItems(
   id: string,
   items: CanvasItem[]
-): { field: FormField; containerId: string | null; columnId: string | null } | null {
+): {
+  field: FormField;
+  containerId: string | null;
+  columnId: string | null;
+} | null {
   for (const item of items) {
     if (isFormField(item) && item.id === id) {
       return { field: item, containerId: null, columnId: null };
@@ -222,10 +223,7 @@ export function isSameColumn(
 ): boolean {
   const srcMeta = findFieldInItems(sourceId, items);
   const tgtMeta = findFieldInItems(targetId, items);
-  return (
-    srcMeta?.columnId != null &&
-    srcMeta.columnId === tgtMeta?.columnId
-  );
+  return srcMeta?.columnId != null && srcMeta.columnId === tgtMeta?.columnId;
 }
 
 /**

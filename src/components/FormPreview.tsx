@@ -18,12 +18,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+const LABEL_WIDTH = 200;
 
 const FieldLabel = ({ field }: { field: FormField }) => {
   return (
-    <Grid
-      size={2}
+    <Box
       sx={{
+        width: LABEL_WIDTH,
+        minWidth: LABEL_WIDTH,
+        flexShrink: 0,
         borderRight: "1px solid black",
         display: "flex",
         p: 1,
@@ -31,7 +34,7 @@ const FieldLabel = ({ field }: { field: FormField }) => {
       }}
     >
       <Typography id={`${field.id}-label`}>{field.label}</Typography>
-    </Grid>
+    </Box>
   );
 };
 
@@ -39,7 +42,6 @@ export interface FormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
 }
-
 
 function FieldBody({ field }: { field: FormField }) {
   if (
@@ -82,6 +84,9 @@ function FieldBody({ field }: { field: FormField }) {
         defaultChecked={field.defaultChecked}
         required={field.required}
         aria-labelledby={`${field.id}-label`}
+        sx={{
+          p: 0,
+        }}
       />
     );
   }
@@ -91,6 +96,12 @@ function FieldBody({ field }: { field: FormField }) {
       <RadioGroup
         defaultValue={field.options[0]?.value}
         aria-labelledby={`${field.id}-label`}
+        sx={{
+          "& .MuiRadio-root": {
+            padding: 0,
+            paddingLeft: 1,
+          },
+        }}
       >
         {field.options.map((opt) => (
           <FormControlLabel
@@ -113,6 +124,7 @@ function FieldBody({ field }: { field: FormField }) {
         size="small"
         sx={{
           "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+          "& .MuiOutlinedInput-input": { padding: 0 },
         }}
       >
         {field.options.map((opt) => (
@@ -167,8 +179,9 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
         borderBottom: "1px solid black",
         borderLeft: "1px solid black",
         borderRight: "1px solid black",
+        aspectRatio: "457/647",
+        width: "70%",
         boxSizing: "border-box",
-        width: "457px",
         margin: "0 auto",
         alignContent: "flex-start",
       }}
@@ -183,7 +196,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
           textAlign: "center",
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           {formTitle}
         </Typography>
       </Grid>
@@ -249,9 +262,9 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
               sx={{ borderBottom: "1px solid black" }}
             >
               <FieldLabel field={item} />
-              <Grid size={10} sx={{ p: 1 }}>
+              <Box sx={{ flex: 1, p: 1 }}>
                 <FieldBody field={item} />
-              </Grid>
+              </Box>
             </Grid>
           );
         }

@@ -89,13 +89,14 @@ export default function SortableFieldItem({
         targetRef(node);
       }}
       sx={{
-        p: 1.5,
+        p: 0,
         border: 2,
         borderColor: isSelected ? "primary.main" : "transparent",
         display: "flex",
         alignItems: "center",
         gap: 1,
         opacity: isDragging ? 0.6 : 1,
+        width: "100%",
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}
@@ -122,9 +123,9 @@ export default function SortableFieldItem({
         }}
       >
         <Typography variant="body1">{field.label}</Typography>
-        <Typography variant="caption" color="text.secondary">
+        {/* <Typography variant="caption" color="text.secondary">
           {DEFAULT_LABELS[field.type]}
-        </Typography>
+        </Typography> */}
       </ButtonBase>
       {/* 刪除欄位 */}
       <IconButton

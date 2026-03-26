@@ -1,9 +1,13 @@
 "use client";
 
-import { FIELD_TYPE_DEFINITIONS, type FormFieldType, type LayoutType } from "@/types/form";
+import {
+  FIELD_TYPE_DEFINITIONS,
+  type FormFieldType,
+  type LayoutType,
+} from "@/types/form";
 import { Box, Grid, Paper, Typography } from "@mui/material";
 import NotesIcon from "@mui/icons-material/Notes";
-import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import { useDraggable } from "@dnd-kit/react";
 
 function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
@@ -32,9 +36,8 @@ function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
 }
 
 const LAYOUT_TYPE_DEFINITIONS: { layoutType: LayoutType; label: string }[] = [
+  { layoutType: "1col", label: "單欄" },
   { layoutType: "2col", label: "雙欄" },
-  { layoutType: "3col", label: "三欄" },
-  { layoutType: "4col", label: "四欄" },
 ];
 
 function LayoutItem({
@@ -62,7 +65,7 @@ function LayoutItem({
       }}
       ref={ref}
     >
-      <ViewColumnIcon />
+      <ViewListIcon />
       <Typography variant="body2">{label}</Typography>
     </Paper>
   );

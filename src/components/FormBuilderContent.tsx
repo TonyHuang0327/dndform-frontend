@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { move } from "@dnd-kit/helpers";
 import ComponentPalette from "@/components/ComponentPalette";
 import FieldPropertyEditor from "@/components/FieldPropertyEditor";
@@ -38,6 +38,27 @@ export default function FormBuilderContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("design");
   const [formTitle, setFormTitle] = useState("未命名表單");
+
+  function normalizeItemsWithColumnLabel(input: CanvasItem[]) {
+    let hasChanged = false;
+    const normalized = input.map((item) => {
+      if (!isLayoutContainer(item)) return item;
+      let columnChanged = false;
+      const columns = item.columns.map((col) => {
+        if (col.label != null) return col;
+        columnChanged = true;
+        hasChanged = true;
+        return { ...col, label: "標題" };
+      });
+      if (!columnChanged) return item;
+      return { ...item, columns };
+    });
+    return hasChanged ? normalized : input;
+  }
+
+  useEffect(() => {
+    setItems((prev) => normalizeItemsWithColumnLabel(prev));
+  }, []);
 
   // ── 巢狀查找與更新 ───────────────────────────────────────────
 
