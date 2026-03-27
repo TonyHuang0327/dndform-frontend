@@ -290,7 +290,9 @@ export default function InteractiveFormPreview({
 
     return (
       <Grid key={id} size={span}>
-        <Typography variant="body1">{field.label}</Typography>
+        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+          {field.label}
+        </Typography>
       </Grid>
     );
   }
@@ -345,8 +347,8 @@ export default function InteractiveFormPreview({
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
+    <Paper variant="outlined" sx={{ p: 3, width: "70%", margin: "0 auto" }}>
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
         {formTitle}
       </Typography>
 
@@ -366,7 +368,10 @@ export default function InteractiveFormPreview({
                       <Grid key={col.id} size={col.span}>
                         <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
                           {!plain && (
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{ mb: 1, fontWeight: "bold" }}
+                            >
                               {col.label?.trim()
                                 ? col.label
                                 : `欄位 ${colIndex + 1}`}

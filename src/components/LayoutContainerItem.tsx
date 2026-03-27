@@ -1,9 +1,22 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/react";
-import { Box, Grid, TextField, Typography } from "@mui/material";
-import { isPlainLayout, type FormField, type LayoutContainer } from "@/types/form";
+import {
+  Box,
+  Grid,
+  IconButton,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import {
+  isPlainLayout,
+  type FormField,
+  type LayoutContainer,
+} from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
+import DeleteIcon from "@mui/icons-material/Delete";
+import OpenWithIcon from "@mui/icons-material/OpenWith";
 
 export interface LayoutContainerItemProps {
   container: LayoutContainer;
@@ -140,46 +153,78 @@ export default function LayoutContainerItem({
 }: LayoutContainerItemProps) {
   const plain = isPlainLayout(container);
   return (
-    <Box
-      sx={{
-        border: "1px solid",
-        borderColor: "grey.300",
-        borderRadius: 1,
-        p: 1,
-        position: "relative",
-        bgcolor: "grey.50",
+    <Tooltip
+      title={
+        <>
+          <IconButton
+            size="small"
+            color="inherit"
+            aria-label="移動版面容器"
+            sx={{
+              cursor: "move",
+            }}
+          >
+            <OpenWithIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => onDelete(container.id)}
+            aria-label="刪除版面容器"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </>
+      }
+      placement="top-end"
+      slotProps={{
+        tooltip: {
+          sx: {
+            p: 0,
+          },
+        },
+        popper: {
+          modifiers: [
+            {
+              name: "offset",
+              options: {
+                offset: [0, -10],
+              },
+            },
+          ],
+        },
       }}
     >
-      {/* 右上角刪除容器按鈕 */}
-      {/* <IconButton
-        size="small"
-        color="error"
-        onClick={() => onDelete(container.id)}
-        aria-label="刪除版面容器"
-        sx={{ position: "absolute", top: 4, right: 4, zIndex: 1 }}
+      <Box
+        sx={{
+          border: "1px solid",
+          borderColor: "grey.300",
+          borderRadius: 1,
+          p: 1,
+          position: "relative",
+          bgcolor: "grey.50",
+        }}
       >
-        <DeleteIcon fontSize="small" />
-      </IconButton> */}
-
-      {/* 格子區域（橫向排列） */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {container.columns.map((col) => (
-          <Box key={col.id} sx={{ flex: col.span }}>
-            <ColumnSlot
-              isPlain={plain}
-              containerId={container.id}
-              columnId={col.id}
-              columnLabel={col.label ?? "標題"}
-              fields={col.fields}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              onDelete={onDelete}
-              onChange={onChange}
-              onChangeColumnLabel={onChangeColumnLabel}
-            />
-          </Box>
-        ))}
+        {/* 格子區域（橫向排列） */}
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {container.columns.map((col) => (
+            <Box key={col.id} sx={{ flex: col.span }}>
+              <ColumnSlot
+                isPlain={plain}
+                containerId={container.id}
+                columnId={col.id}
+                columnLabel={col.label ?? "標題"}
+                fields={col.fields}
+                selectedId={selectedId}
+                onSelect={onSelect}
+                onDelete={onDelete}
+                onChange={onChange}
+                onChangeColumnLabel={onChangeColumnLabel}
+              />
+            </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>
+    </Tooltip>
   );
 }

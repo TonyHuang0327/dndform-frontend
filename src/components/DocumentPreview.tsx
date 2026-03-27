@@ -75,7 +75,7 @@ function FieldBody({
         required={field.required}
         aria-label={ariaLabel}
         sx={{
-          p: 0,
+          p: 1,
         }}
       />
     );
@@ -167,7 +167,10 @@ function FieldBody({
   return null;
 }
 
-export default function DocumentPreview({ items, formTitle }: DocumentPreviewProps) {
+export default function DocumentPreview({
+  items,
+  formTitle,
+}: DocumentPreviewProps) {
   if (items.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
