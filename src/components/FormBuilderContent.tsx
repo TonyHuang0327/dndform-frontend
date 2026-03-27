@@ -26,6 +26,8 @@ import {
   IconButton,
   Paper,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import { useReactToPrint } from "react-to-print";
@@ -33,6 +35,7 @@ import { DragDropProvider, type DragDropEventHandlers } from "@dnd-kit/react";
 import CloseIcon from "@mui/icons-material/Close";
 
 type Mode = "design" | "preview";
+type PreviewMode = "document" | "interactive";
 type DragEndEventArg = Parameters<
   NonNullable<DragDropEventHandlers["onDragEnd"]>
 >[0];
@@ -44,6 +47,7 @@ export default function FormBuilderContent() {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("design");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("document");
   const [formTitle, setFormTitle] = useState("未命名表單");
 
   function normalizeLayoutVariant(
@@ -367,18 +371,32 @@ export default function FormBuilderContent() {
         </DragDropProvider>
       ) : (
         <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => handlePrintPreview()}
-              disabled={items.length === 0}
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Tabs
+              value={previewMode}
+              onChange={(_, value: PreviewMode) => setPreviewMode(value)}
+              aria-label="預覽模式切換"
             >
-              列印 / 儲存為PDF
-            </Button>
+              <Tab value="document" label="文件模式" />
+              <Tab value="interactive" label="表單模式" />
+            </Tabs>
+            {previewMode === "document" && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handlePrintPreview()}
+                disabled={items.length === 0}
+              >
+                列印 / 儲存為PDF
+              </Button>
+            )}
           </Box>
           <div ref={previewRef}>
-            <FormPreview items={items} formTitle={formTitle} />
+            <FormPreview
+              items={items}
+              formTitle={formTitle}
+              previewMode={previewMode}
+            />
           </div>
         </Box>
       )}
