@@ -58,7 +58,7 @@ function FieldBody({
             backgroundColor: "aliceblue",
           },
           "& .MuiOutlinedInput-input": {
-            padding: 0,
+            padding: 1,
           },
           "& .MuiOutlinedInput-root": {
             padding: 0,
@@ -149,28 +149,17 @@ function FieldBody({
 
   if (field.type === "labeled-input") {
     return (
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Box sx={{ width: LABEL_WIDTH, pr: 1 }}>
-          <Typography variant="body1">{field.label || "標題"}</Typography>
-        </Box>
-        <TextField
-          fullWidth
-          aria-label={ariaLabel}
-          required={field.required}
-          size="small"
-          variant="outlined"
-          sx={{
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "& .MuiOutlinedInput-input": {
-              padding: 0,
-            },
-            "& .MuiOutlinedInput-root": {
-              padding: 0,
-            },
-          }}
-        />
+      <Box
+        sx={{
+          width: LABEL_WIDTH,
+          backgroundColor: "grey.50",
+          borderRight: "1px solid black",
+          p: 1,
+        }}
+      >
+        <Typography variant="body1">
+          {field.label?.trim() ? field.label : "未命名欄位"}
+        </Typography>
       </Box>
     );
   }
@@ -267,7 +256,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                       </Box>
                     )}
                     {col.fields.length === 0 ? (
-                      <Box sx={{ p: 1, flex: 1 }}>
+                      <Box sx={{ flex: 1 }}>
                         <TextField
                           fullWidth
                           aria-label={`${
@@ -287,7 +276,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                               padding: 0,
                             },
                             "& .MuiOutlinedInput-root": {
-                              padding: 0,
+                              padding: 1,
                             },
                           }}
                         />
@@ -301,7 +290,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
                             flex: 1,
                           }}
                         >
-                          <Box sx={{ flex: 1, p: 1 }}>
+                          <Box sx={{ flex: 1 }}>
                             <FieldBody
                               field={field}
                               ariaLabel={`${
@@ -333,7 +322,7 @@ export default function FormPreview({ items, formTitle }: FormPreviewProps) {
               alignItems="stretch"
               sx={{ borderBottom: "1px solid black" }}
             >
-              <Box sx={{ flex: 1, p: 1 }}>
+              <Box sx={{ flex: 1 }}>
                 <FieldBody
                   field={item}
                   ariaLabel={`${item.type}-${topLevelFieldOrder}`}

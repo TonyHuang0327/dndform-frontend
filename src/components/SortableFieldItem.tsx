@@ -133,7 +133,7 @@ export default function SortableFieldItem({
             onChange={(e) => onChange(field.id, { label: e.target.value })}
             onMouseDown={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="標題輸入欄-標題"
+            aria-label="標題方塊"
             variant="outlined"
             size="small"
             sx={{

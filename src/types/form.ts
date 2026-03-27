@@ -67,7 +67,7 @@ export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   radio: "單選",
   select: "下拉選單",
   "ocr-list": "OCR列表",
-  "labeled-input": "標題輸入欄",
+  "labeled-input": "標題方塊",
 };
 
 export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
