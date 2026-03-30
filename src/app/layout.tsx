@@ -24,10 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <script src="http://localhost:8097" async></script>
-      </head>
+    <html lang="zh-Hant">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>

@@ -3,10 +3,10 @@
 import { useDroppable } from "@dnd-kit/react";
 import {
   Box,
+  Card,
   Grid,
   IconButton,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import {
@@ -16,10 +16,12 @@ import {
 } from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
 import DeleteIcon from "@mui/icons-material/Delete";
-import OpenWithIcon from "@mui/icons-material/OpenWith";
+import { useSortable } from "@dnd-kit/react/sortable";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 export interface LayoutContainerItemProps {
   container: LayoutContainer;
+  index: number;
   /** 目前被選取的欄位 id，用於 SortableFieldItem highlight */
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -114,6 +116,8 @@ function ColumnSlot({
       <Box
         sx={{
           flex: 1,
+          display: "flex",
+          flexDirection: "row",
         }}
       >
         {fields.length === 0 ? (
@@ -145,6 +149,7 @@ function ColumnSlot({
 
 export default function LayoutContainerItem({
   container,
+  index,
   selectedId,
   onSelect,
   onDelete,
@@ -152,79 +157,65 @@ export default function LayoutContainerItem({
   onChangeColumnLabel,
 }: LayoutContainerItemProps) {
   const plain = isPlainLayout(container);
+  const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
+    id: container.id,
+    index,
+  });
   return (
-    <Tooltip
-      title={
-        <>
-          <IconButton
-            size="small"
-            color="inherit"
-            aria-label="移動版面容器"
-            sx={{
-              cursor: "move",
-            }}
-          >
-            <OpenWithIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            color="error"
-            onClick={() => onDelete(container.id)}
-            aria-label="刪除版面容器"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </>
-      }
-      placement="top-end"
-      slotProps={{
-        tooltip: {
-          sx: {
-            p: 0,
-          },
-        },
-        popper: {
-          modifiers: [
-            {
-              name: "offset",
-              options: {
-                offset: [0, -10],
-              },
-            },
-          ],
-        },
+    <Card
+      ref={(node) => {
+        ref(node);
+        sourceRef(node);
+        targetRef(node);
+      }}
+      sx={{
+        border: "1px solid",
+        borderColor: "grey.300",
+        borderRadius: 1,
+        p: 1,
+        position: "relative",
+        bgcolor: "grey.50",
+        opacity: isDragging ? 0.6 : 1,
       }}
     >
-      <Box
-        sx={{
-          border: "1px solid",
-          borderColor: "grey.300",
-          borderRadius: 1,
-          p: 1,
-          position: "relative",
-          bgcolor: "grey.50",
-        }}
-      >
-        {/* 格子區域（橫向排列） */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          {container.columns.map((col) => (
-            <Box key={col.id} sx={{ flex: col.span }}>
-              <ColumnSlot
-                isPlain={plain}
-                containerId={container.id}
-                columnId={col.id}
-                columnLabel={col.label ?? "標題"}
-                fields={col.fields}
-                selectedId={selectedId}
-                onSelect={onSelect}
-                onDelete={onDelete}
-                onChange={onChange}
-                onChangeColumnLabel={onChangeColumnLabel}
-              />
-            </Box>
-          ))}
-        </Box>
+      {/* 格子區域（橫向排列） */}
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <IconButton
+          ref={handleRef}
+          sx={{
+            cursor: "grab",
+            color: "text.secondary",
+            "&:active": { cursor: "grabbing" },
+          }}
+          aria-label="拖動排序"
+        >
+          <DragIndicatorIcon fontSize="small" />
+        </IconButton>
+        {container.columns.map((col) => (
+          <Grid key={col.id} size={col.span}>
+            <ColumnSlot
+              isPlain={plain}
+              containerId={container.id}
+              columnId={col.id}
+              columnLabel={col.label ?? "標題"}
+              fields={col.fields}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onDelete={onDelete}
+              onChange={onChange}
+              onChangeColumnLabel={onChangeColumnLabel}
+            />
+          </Grid>
+        ))}
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => onDelete(container.id)}
+          aria-label="刪除版面容器"
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       </Box>
-    </Tooltip>
+    </Card>
   );
 }

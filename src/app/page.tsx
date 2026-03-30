@@ -8,8 +8,8 @@ const FormBuilderContent = dynamic(
   () => import("@/components/FormBuilderContent"),
   { ssr: false }
 );
-const queryClient = new QueryClient();
 export default function Home() {
+  const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />

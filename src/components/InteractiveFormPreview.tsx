@@ -174,7 +174,6 @@ export default function InteractiveFormPreview({
         <Grid key={id} size={span}>
           <TextField
             fullWidth
-            //label={field.label}
             value={
               typeof formValues[id] === "string"
                 ? (formValues[id] as string)
@@ -197,7 +196,6 @@ export default function InteractiveFormPreview({
         <Grid key={id} size={span}>
           <TextField
             fullWidth
-            //label={field.label}
             type="number"
             value={
               typeof formValues[id] === "string"
@@ -264,7 +262,6 @@ export default function InteractiveFormPreview({
       return (
         <Grid key={id} size={span}>
           <FormControl fullWidth required={field.required} error={hasError}>
-            {/* <FormLabel sx={{ mb: 0.75 }}>{field.label}</FormLabel> */}
             <Select
               value={
                 typeof formValues[id] === "string"
@@ -289,7 +286,7 @@ export default function InteractiveFormPreview({
     }
 
     return (
-      <Grid key={id} size={span}>
+      <Grid key={id} size={span} sx={{ p: 2 }}>
         <Typography variant="body1" sx={{ fontWeight: "bold" }}>
           {field.label}
         </Typography>
@@ -330,22 +327,6 @@ export default function InteractiveFormPreview({
     setSubmitSuccessOpen(true);
   }
 
-  if (interactiveFields.length === 0) {
-    return (
-      <Paper variant="outlined" sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          {formTitle}
-        </Typography>
-        <Typography color="text.secondary" sx={{ mb: 2 }}>
-          目前無可填寫欄位
-        </Typography>
-        <Button variant="contained" disabled>
-          送出
-        </Button>
-      </Paper>
-    );
-  }
-
   return (
     <Paper variant="outlined" sx={{ p: 3, width: "70%", margin: "0 auto" }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
@@ -366,7 +347,7 @@ export default function InteractiveFormPreview({
                   <Grid container spacing={2}>
                     {item.columns.map((col, colIndex) => (
                       <Grid key={col.id} size={col.span}>
-                        <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
+                        <Box sx={{ p: 2, height: "100%" }}>
                           {!plain && (
                             <Typography
                               variant="body1"
@@ -380,8 +361,6 @@ export default function InteractiveFormPreview({
                           {col.fields.length === 0 ? (
                             <TextField
                               fullWidth
-                              disabled
-                              label="尚未加入元件"
                               value=""
                               placeholder="此欄暫無可填欄位"
                             />
@@ -392,7 +371,7 @@ export default function InteractiveFormPreview({
                               )}
                             </Grid>
                           )}
-                        </Paper>
+                        </Box>
                       </Grid>
                     ))}
                   </Grid>

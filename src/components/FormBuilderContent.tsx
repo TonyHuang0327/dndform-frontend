@@ -64,10 +64,22 @@ export default function FormBuilderContent() {
       const variantChanged = item.variant !== normalizedVariant;
       let columnChanged = false;
       const columns = item.columns.map((col) => {
-        if (col.label != null) return col;
+        const normalizedLabel =
+          col.label != null ? col.label : normalizedVariant === "plain" ? "" : "標題";
+        const rebalancedFields = rebalanceColumnFieldSpans(col.fields);
+        const fieldSpanChanged = col.fields.some(
+          (field, index) => field.span !== rebalancedFields[index]?.span
+        );
+        const labelChanged = col.label !== normalizedLabel;
+
+        if (!fieldSpanChanged && !labelChanged) return col;
         columnChanged = true;
         hasChanged = true;
-        return { ...col, label: normalizedVariant === "plain" ? "" : "標題" };
+        return {
+          ...col,
+          label: normalizedLabel,
+          fields: rebalancedFields,
+        };
       });
       if (!columnChanged && !variantChanged) return item;
       hasChanged = true;
@@ -83,6 +95,19 @@ export default function FormBuilderContent() {
       const next = typeof updater === "function" ? updater(prev) : updater;
       return normalizeItemsWithContainerMeta(next);
     });
+  }
+
+  function rebalanceColumnFieldSpans(fields: FormField[]): FormField[] {
+    const count = fields.length;
+    if (count === 0) return fields;
+
+    const base = Math.floor(12 / count);
+    const remainder = 12 % count;
+
+    return fields.map((field, index) => ({
+      ...field,
+      span: base + (index < remainder ? 1 : 0),
+    }));
   }
 
   // ── 巢狀查找與更新 ───────────────────────────────────────────
@@ -120,7 +145,9 @@ export default function FormBuilderContent() {
             ...item,
             columns: item.columns.map((col) => ({
               ...col,
-              fields: col.fields.filter((f) => f.id !== id),
+              fields: rebalanceColumnFieldSpans(
+                col.fields.filter((f) => f.id !== id)
+              ),
             })),
           };
         })
@@ -164,7 +191,10 @@ export default function FormBuilderContent() {
           ...item,
           columns: item.columns.map((col) =>
             col.id === columnId
-              ? { ...col, fields: [...col.fields, field] }
+              ? {
+                  ...col,
+                  fields: rebalanceColumnFieldSpans([...col.fields, field]),
+                }
               : col
           ),
         };
