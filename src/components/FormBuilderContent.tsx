@@ -1,11 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { type ChangeEvent, useRef, useState } from "react";
 import { move } from "@dnd-kit/helpers";
 import ComponentPalette from "@/components/ComponentPalette";
 import FieldPropertyEditor from "@/components/FieldPropertyEditor";
 import FormCanvas, { CANVAS_ID } from "@/components/FormCanvas";
 import FormPreview from "@/components/FormPreview";
+import {
+  buildTemplateV1,
+  getMaxTemplateFileSizeBytes,
+  parseTemplateJson,
+  serializeTemplate,
+  TemplateIOError,
+  validateAndNormalizeTemplate,
+} from "@/features/template-io/templateIO";
 import {
   createField,
   createLayoutContainer,
@@ -20,11 +28,18 @@ import {
   type LayoutVariant,
 } from "@/types/form";
 import {
+  Alert,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Drawer,
   IconButton,
   Paper,
+  Snackbar,
   Stack,
   Tab,
   Tabs,
@@ -49,6 +64,17 @@ export default function FormBuilderContent() {
   const [mode, setMode] = useState<Mode>("design");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("document");
   const [formTitle, setFormTitle] = useState("未命名表單");
+  const [importConfirmOpen, setImportConfirmOpen] = useState(false);
+  const [pendingImportFile, setPendingImportFile] = useState<File | null>(null);
+  const [feedback, setFeedback] = useState<{
+    open: boolean;
+    severity: "success" | "error" | "warning";
+    message: string;
+  }>({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
   function normalizeLayoutVariant(
     variant: LayoutVariant | undefined | null
@@ -308,6 +334,7 @@ export default function FormBuilderContent() {
   // ── Print ────────────────────────────────────────────────────
 
   const previewRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
   const handlePrintPreview = useReactToPrint({
     contentRef: previewRef,
     documentTitle: "form-preview",
@@ -319,6 +346,97 @@ export default function FormBuilderContent() {
     `,
   });
 
+  function setFeedbackMessage(
+    severity: "success" | "error" | "warning",
+    message: string
+  ) {
+    setFeedback({ open: true, severity, message });
+  }
+
+  function buildExportFilename() {
+    const now = new Date();
+    const pad2 = (value: number) => String(value).padStart(2, "0");
+    const stamp = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(now.getSeconds())}`;
+    return `form-template-${stamp}.json`;
+  }
+
+  function handleExportTemplate() {
+    try {
+      const template = buildTemplateV1(formTitle, items);
+      const content = serializeTemplate(template);
+      const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = buildExportFilename();
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+      setFeedbackMessage("success", "JSON 匯出成功");
+    } catch {
+      setFeedbackMessage("error", "匯出失敗，請稍後重試");
+    }
+  }
+
+  function handleSelectImportFile() {
+    if (!importInputRef.current) return;
+    importInputRef.current.value = "";
+    importInputRef.current.click();
+  }
+
+  async function applyImportFile(file: File) {
+    if (file.size > getMaxTemplateFileSizeBytes()) {
+      setFeedbackMessage("error", "範本內容過大，請拆分後再匯入");
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = parseTemplateJson(text);
+      const { template, warnings } = validateAndNormalizeTemplate(parsed);
+      setFormTitle(template.formTitle);
+      setItemsNormalized(template.items);
+      setSelectedId(null);
+      setMode("design");
+      if (warnings.length > 0) {
+        setFeedbackMessage("warning", "匯入成功，部分欄位已自動修正");
+        return;
+      }
+      setFeedbackMessage("success", "匯入成功");
+    } catch (error) {
+      if (error instanceof TemplateIOError) {
+        setFeedbackMessage("error", error.message);
+        return;
+      }
+      setFeedbackMessage("error", "匯入失敗，請稍後重試");
+    }
+  }
+
+  async function handleImportInputChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (items.length > 0) {
+      setPendingImportFile(file);
+      setImportConfirmOpen(true);
+      return;
+    }
+    await applyImportFile(file);
+  }
+
+  function handleConfirmImportCancel() {
+    setImportConfirmOpen(false);
+    setPendingImportFile(null);
+  }
+
+  async function handleConfirmImportApply() {
+    const file = pendingImportFile;
+    setImportConfirmOpen(false);
+    setPendingImportFile(null);
+    if (!file) return;
+    await applyImportFile(file);
+  }
+
   // ── Render ───────────────────────────────────────────────────
 
   const selectedField = selectedId
@@ -328,6 +446,16 @@ export default function FormBuilderContent() {
   return (
     <Box sx={{ minHeight: "100vh", boxSizing: "border-box", p: 2 }}>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+        {mode === "design" && (
+          <Stack direction="row" spacing={1} sx={{ mr: 1 }}>
+            <Button variant="outlined" onClick={handleExportTemplate}>
+              匯出 JSON
+            </Button>
+            <Button variant="outlined" onClick={handleSelectImportFile}>
+              匯入 JSON
+            </Button>
+          </Stack>
+        )}
         <Button
           variant="contained"
           onClick={() => setMode(mode === "design" ? "preview" : "design")}
@@ -430,6 +558,44 @@ export default function FormBuilderContent() {
           </div>
         </Box>
       )}
+
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".json,application/json"
+        style={{ display: "none" }}
+        onChange={handleImportInputChange}
+      />
+
+      <Dialog open={importConfirmOpen} onClose={handleConfirmImportCancel}>
+        <DialogTitle>覆蓋目前表單？</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            匯入 JSON 會覆蓋目前畫布內容，是否繼續？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmImportCancel}>取消</Button>
+          <Button variant="contained" onClick={handleConfirmImportApply}>
+            確認匯入
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={feedback.open}
+        autoHideDuration={2600}
+        onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={feedback.severity}
+          variant="filled"
+          onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
+        >
+          {feedback.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

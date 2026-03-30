@@ -15,7 +15,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  FormLabel,
   Grid,
   MenuItem,
   Paper,
@@ -143,7 +142,7 @@ function buildSubmitPayload(
     }
     payload[id] = typeof rawValue === "string" ? rawValue : "";
   }
-
+  console.log(payload);
   return payload;
 }
 
@@ -234,7 +233,6 @@ export default function InteractiveFormPreview({
       return (
         <Grid key={id} size={span}>
           <FormControl required={field.required} error={hasError}>
-            <FormLabel>{field.label}</FormLabel>
             <RadioGroup
               value={
                 typeof formValues[id] === "string"
@@ -242,6 +240,9 @@ export default function InteractiveFormPreview({
                   : ""
               }
               onChange={(event) => updateValue(id, event.target.value)}
+              sx={{
+                flexDirection: "row",
+              }}
             >
               {field.options.map((opt) => (
                 <FormControlLabel
@@ -286,7 +287,7 @@ export default function InteractiveFormPreview({
     }
 
     return (
-      <Grid key={id} size={span} sx={{ p: 2 }}>
+      <Grid key={id} size={span}>
         <Typography variant="body1" sx={{ fontWeight: "bold" }}>
           {field.label}
         </Typography>
@@ -328,13 +329,13 @@ export default function InteractiveFormPreview({
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 3, width: "70%", margin: "0 auto" }}>
+    <Paper variant="outlined" sx={{ p: 2, width: "70%", margin: "0 auto" }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
         {formTitle}
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit} noValidate>
-        <Grid container spacing={2}>
+        <Grid container spacing={1}>
           {items.map((item) => {
             if (isFormField(item)) {
               return renderInteractiveField(item, item.id);
@@ -347,7 +348,7 @@ export default function InteractiveFormPreview({
                   <Grid container spacing={2}>
                     {item.columns.map((col, colIndex) => (
                       <Grid key={col.id} size={col.span}>
-                        <Box sx={{ p: 2, height: "100%" }}>
+                        <Box sx={{ height: "100%" }}>
                           {!plain && (
                             <Typography
                               variant="body1"
@@ -363,6 +364,7 @@ export default function InteractiveFormPreview({
                               fullWidth
                               value=""
                               placeholder="此欄暫無可填欄位"
+                              variant="outlined"
                             />
                           ) : (
                             <Grid container spacing={2}>

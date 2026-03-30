@@ -5,7 +5,10 @@ import {
   isLayoutContainer,
   isPlainLayout,
 } from "@/types/form";
-import { buildTopLevelFieldOrderMap, normalizeSpan } from "@/features/document-preview/helpers";
+import {
+  buildTopLevelFieldOrderMap,
+  normalizeSpan,
+} from "@/features/document-preview/helpers";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import { FieldBody } from "./FieldBody";
 
@@ -27,6 +30,7 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
         sx={{
           borderRight: "1px solid black",
           borderBottom: "1px solid black",
+          backgroundColor: "grey",
         }}
       />
     );
@@ -71,7 +75,9 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
     for (const [fieldIndex, field] of fields.entries()) {
       const span = normalizeSpan(field.span);
       if (usedSpan + span > 12) {
-        children.push(<Grid key={`col-fill-wrap-${field.id}`} size={12 - usedSpan} />);
+        children.push(
+          <Grid key={`col-fill-wrap-${field.id}`} size={12 - usedSpan} />
+        );
         usedSpan = 0;
       }
 
@@ -79,7 +85,9 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
       const nextSpan = nextField ? normalizeSpan(nextField.span) : 0;
       const isLastField = fieldIndex === fields.length - 1;
       const isRowEnd =
-        isLastField || usedSpan + span === 12 || usedSpan + span + nextSpan > 12;
+        isLastField ||
+        usedSpan + span === 12 ||
+        usedSpan + span + nextSpan > 12;
 
       children.push(
         <Grid
@@ -101,7 +109,9 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
       if (usedSpan === 12) usedSpan = 0;
     }
     if (usedSpan > 0) {
-      children.push(<Grid key={`col-fill-end-${colIndex}`} size={12 - usedSpan} />);
+      children.push(
+        <Grid key={`col-fill-end-${colIndex}`} size={12 - usedSpan} />
+      );
     }
     return children;
   };
@@ -109,13 +119,22 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
   for (const [index, item] of items.entries()) {
     if (isLayoutContainer(item)) {
       if (currentRowSpan > 0 && currentRowSpan < 12) {
-        pushTopLevelFiller(`filler-before-layout-${item.id}`, 12 - currentRowSpan);
+        pushTopLevelFiller(
+          `filler-before-layout-${item.id}`,
+          12 - currentRowSpan
+        );
       }
       currentRowSpan = 0;
 
       const plain = isPlainLayout(item);
       rows.push(
-        <Grid key={item.id} container spacing={0} size={12} alignItems="stretch">
+        <Grid
+          key={item.id}
+          container
+          spacing={0}
+          size={12}
+          alignItems="stretch"
+        >
           {item.columns.map((col, colIndex) => (
             <Grid
               container
@@ -170,7 +189,10 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
         }}
       >
         <Box sx={{ flex: 1 }}>
-          <FieldBody field={item} ariaLabel={`${item.type}-${topLevelFieldOrder}`} />
+          <FieldBody
+            field={item}
+            ariaLabel={`${item.type}-${topLevelFieldOrder}`}
+          />
         </Box>
       </Grid>
     );
