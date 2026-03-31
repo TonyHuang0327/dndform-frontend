@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIconOutlined from "@mui/icons-material/DeleteOutlined";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { DEFAULT_LABELS } from "@/types/form";
 
@@ -165,7 +165,7 @@ export default function SortableFieldItem({
         onClick={() => onDelete(field.id)}
         aria-label="刪除欄位"
       >
-        <DeleteIcon fontSize="small" />
+        <DeleteIconOutlined fontSize="small" />
       </IconButton>
       {/* 右側拖拉把手：拖移改變 span 大小；容器格子內由 disableResize 停用 */}
       {!disableResize && (

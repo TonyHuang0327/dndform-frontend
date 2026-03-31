@@ -6,6 +6,7 @@ import {
   Card,
   Grid,
   IconButton,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -15,9 +16,9 @@ import {
   type LayoutContainer,
 } from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useSortable } from "@dnd-kit/react/sortable";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import DeleteIconOutlined from "@mui/icons-material/DeleteOutlined";
 
 export interface LayoutContainerItemProps {
   container: LayoutContainer;
@@ -35,7 +36,6 @@ export interface LayoutContainerItemProps {
   ) => void;
 }
 
-const LABEL_WIDTH = 150;
 type ColumnSlotProps = {
   isPlain: boolean;
   containerId: string;
@@ -67,24 +67,12 @@ function ColumnSlot({
   const { ref, isDropTarget } = useDroppable({ id: columnId });
 
   return (
-    <Grid
-      container
-      ref={ref}
-      sx={{
-        border: "1px solid",
-        borderColor: isDropTarget ? "primary.main" : "grey.400",
-        bgcolor: isDropTarget ? "action.hover" : "background.paper",
-      }}
-    >
+    <Stack direction="column" ref={ref} gap={1}>
       {!isPlain && (
         <Box
           sx={{
-            width: LABEL_WIDTH,
-            minWidth: LABEL_WIDTH,
             flexShrink: 0,
-            borderRight: "1px solid black",
             display: "flex",
-            p: 1,
             alignItems: "center",
           }}
         >
@@ -97,18 +85,7 @@ function ColumnSlot({
             onMouseDown={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="欄位標題"
-            variant="outlined"
-            sx={{
-              "& .MuiInputBase-input": {
-                padding: 0,
-              },
-              "& .MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              "& .Mui-focused": {
-                backgroundColor: "aliceblue",
-              },
-            }}
+            variant="standard"
           />
         </Box>
       )}
@@ -118,6 +95,10 @@ function ColumnSlot({
           flex: 1,
           display: "flex",
           flexDirection: "row",
+          border: "1px dashed",
+          borderColor: isDropTarget ? "primary.main" : "grey.400",
+          bgcolor: isDropTarget ? "action.hover" : "background.paper",
+          p: 1,
         }}
       >
         {fields.length === 0 ? (
@@ -143,7 +124,7 @@ function ColumnSlot({
           ))
         )}
       </Box>
-    </Grid>
+    </Stack>
   );
 }
 
@@ -172,50 +153,51 @@ export default function LayoutContainerItem({
         border: "1px solid",
         borderColor: "grey.300",
         borderRadius: 1,
-        p: 1,
+        p: 2,
         position: "relative",
         bgcolor: "grey.50",
         opacity: isDragging ? 0.6 : 1,
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
       }}
     >
       {/* 格子區域（橫向排列） */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <IconButton
-          ref={handleRef}
-          sx={{
-            cursor: "grab",
-            color: "text.secondary",
-            "&:active": { cursor: "grabbing" },
-          }}
-          aria-label="拖動排序"
-        >
-          <DragIndicatorIcon fontSize="small" />
-        </IconButton>
-        {container.columns.map((col) => (
-          <Grid key={col.id} size={col.span}>
-            <ColumnSlot
-              isPlain={plain}
-              containerId={container.id}
-              columnId={col.id}
-              columnLabel={col.label ?? "標題"}
-              fields={col.fields}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              onDelete={onDelete}
-              onChange={onChange}
-              onChangeColumnLabel={onChangeColumnLabel}
-            />
-          </Grid>
-        ))}
-        <IconButton
-          size="small"
-          color="error"
-          onClick={() => onDelete(container.id)}
-          aria-label="刪除版面容器"
-        >
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      </Box>
+      <IconButton
+        ref={handleRef}
+        sx={{
+          cursor: "grab",
+          color: "text.secondary",
+          "&:active": { cursor: "grabbing" },
+        }}
+        aria-label="拖動排序"
+      >
+        <DragIndicatorIcon fontSize="small" />
+      </IconButton>
+      {container.columns.map((col) => (
+        <Grid key={col.id} size={col.span}>
+          <ColumnSlot
+            isPlain={plain}
+            containerId={container.id}
+            columnId={col.id}
+            columnLabel={col.label ?? "標題"}
+            fields={col.fields}
+            selectedId={selectedId}
+            onSelect={onSelect}
+            onDelete={onDelete}
+            onChange={onChange}
+            onChangeColumnLabel={onChangeColumnLabel}
+          />
+        </Grid>
+      ))}
+      <IconButton
+        size="small"
+        color="error"
+        onClick={() => onDelete(container.id)}
+        aria-label="刪除版面容器"
+      >
+        <DeleteIconOutlined fontSize="small" />
+      </IconButton>
     </Card>
   );
 }

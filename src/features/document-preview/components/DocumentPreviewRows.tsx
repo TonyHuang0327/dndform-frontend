@@ -158,6 +158,8 @@ export function DocumentPreviewRows({
                     p: 1,
                     backgroundColor: titleBackgroundColor,
                     borderRight: "1px solid black",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   <Typography variant="body1">
