@@ -64,10 +64,10 @@ export function FieldBody({ field, ariaLabel }: FieldBodyProps) {
     );
   }
 
-  if (field.type === "radio" && "options" in field) {
+  if (field.type === "radio") {
     return (
       <RadioGroup
-        defaultValue={field.options[0]?.value}
+        defaultValue={field.options[0]?.value ?? ""}
         aria-label={ariaLabel}
         sx={{ pl: 1 }}
       >

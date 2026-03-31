@@ -91,7 +91,11 @@ export default function FormBuilderContent() {
       let columnChanged = false;
       const columns = item.columns.map((col) => {
         const normalizedLabel =
-          col.label != null ? col.label : normalizedVariant === "plain" ? "" : "標題";
+          col.label != null
+            ? col.label
+            : normalizedVariant === "plain"
+            ? ""
+            : "標題";
         const rebalancedFields = rebalanceColumnFieldSpans(col.fields);
         const fieldSpanChanged = col.fields.some(
           (field, index) => field.span !== rebalancedFields[index]?.span
@@ -254,7 +258,8 @@ export default function FormBuilderContent() {
 
     // 頂層 CanvasItem 排序
     if (!isCanvasItemId(source.id, prev)) return prev;
-    if (!(target.id === CANVAS_ID || isCanvasItemId(target.id, prev))) return prev;
+    if (!(target.id === CANVAS_ID || isCanvasItemId(target.id, prev)))
+      return prev;
     return move(prev, event);
   }
 
@@ -356,7 +361,11 @@ export default function FormBuilderContent() {
   function buildExportFilename() {
     const now = new Date();
     const pad2 = (value: number) => String(value).padStart(2, "0");
-    const stamp = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(now.getSeconds())}`;
+    const stamp = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(
+      now.getDate()
+    )}-${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(
+      now.getSeconds()
+    )}`;
     return `form-template-${stamp}.json`;
   }
 
@@ -364,7 +373,9 @@ export default function FormBuilderContent() {
     try {
       const template = buildTemplateV1(formTitle, items);
       const content = serializeTemplate(template);
-      const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+      const blob = new Blob([content], {
+        type: "application/json;charset=utf-8",
+      });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -374,7 +385,8 @@ export default function FormBuilderContent() {
       document.body.removeChild(anchor);
       URL.revokeObjectURL(url);
       setFeedbackMessage("success", "JSON 匯出成功");
-    } catch {
+    } catch (error) {
+      console.error(error);
       setFeedbackMessage("error", "匯出失敗，請稍後重試");
     }
   }
@@ -532,7 +544,11 @@ export default function FormBuilderContent() {
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Tabs
               value={previewMode}
-              onChange={(_, value: PreviewMode) => setPreviewMode(value)}
+              onChange={(_, value: PreviewMode) => {
+                if (value === "document" || value === "interactive") {
+                  setPreviewMode(value);
+                }
+              }}
               aria-label="預覽模式切換"
             >
               <Tab value="document" label="文件模式" />

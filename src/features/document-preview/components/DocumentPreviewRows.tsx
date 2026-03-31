@@ -191,7 +191,7 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
         <Box sx={{ flex: 1 }}>
           <FieldBody
             field={item}
-            ariaLabel={`${item.type}-${topLevelFieldOrder}`}
+            ariaLabel={`${item.type}-${topLevelFieldOrder ?? index + 1}`}
           />
         </Box>
       </Grid>

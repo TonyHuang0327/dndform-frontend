@@ -1,11 +1,12 @@
 "use client";
 
+import { flattenFields } from "@/features/form-preview/helpers";
 import {
   type CanvasItem,
   type FormField,
-  isFormField,
   isLayoutContainer,
   isPlainLayout,
+  isFormField,
 } from "@/types/form";
 import {
   Alert,
@@ -26,7 +27,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type PrimitiveValue = string | number | boolean;
 type FieldValues = Record<string, unknown>;
@@ -40,10 +41,6 @@ interface FlattenedFieldEntry {
 export interface InteractiveFormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
-  formValues: FieldValues;
-  setFormValues: Dispatch<SetStateAction<FieldValues>>;
-  submitSuccessOpen: boolean;
-  setSubmitSuccessOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 function isInteractiveField(field: FormField): boolean {
@@ -56,35 +53,17 @@ function isInteractiveField(field: FormField): boolean {
     field.type === "select"
   );
 }
-
-function flattenFields(items: CanvasItem[]): FlattenedFieldEntry[] {
-  const flattened: FlattenedFieldEntry[] = [];
-  const seen = new Set<string>();
-
-  const pushField = (field: FormField) => {
-    if (seen.has(field.id)) {
-      console.warn(`偵測到重複欄位 id：${field.id}，將採用首次出現者`);
-      return;
-    }
-    seen.add(field.id);
-    flattened.push({ id: field.id, field });
-  };
-
-  for (const item of items) {
-    if (isFormField(item)) {
-      pushField(item);
-      continue;
-    }
-    if (isLayoutContainer(item)) {
-      for (const col of item.columns) {
-        for (const field of col.fields) {
-          pushField(field);
-        }
-      }
-    }
+function getInitialValue(field: FormField): unknown {
+  if (
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "number"
+  ) {
+    return "";
   }
-
-  return flattened;
+  if (field.type === "checkbox") return Boolean(field.defaultChecked);
+  if (field.type === "radio" || field.type === "select") return "";
+  return undefined;
 }
 
 function parseNumberValue(value: unknown): number {
@@ -142,22 +121,49 @@ function buildSubmitPayload(
     }
     payload[id] = typeof rawValue === "string" ? rawValue : "";
   }
-  console.log(payload);
   return payload;
 }
 
 export default function InteractiveFormPreview({
   items,
   formTitle,
-  formValues,
-  setFormValues,
-  submitSuccessOpen,
-  setSubmitSuccessOpen,
 }: InteractiveFormPreviewProps) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({});
+  const [formValues, setFormValues] = useState<Record<string, unknown>>({});
+  const [submitSuccessOpen, setSubmitSuccessOpen] = useState(false);
+  const flattenedFields = useMemo(() => flattenFields(items), [items]);
 
-  const flattened = useMemo(() => flattenFields(items), [items]);
+  const effectiveFormValues = useMemo(() => {
+    const next: Record<string, unknown> = {};
+
+    for (const field of flattenedFields) {
+      if (formValues[field.id] !== undefined) {
+        next[field.id] = formValues[field.id];
+      } else {
+        next[field.id] = getInitialValue(field);
+      }
+    }
+
+    for (const field of flattenedFields) {
+      if (field.type !== "radio" && field.type !== "select") continue;
+      const current = next[field.id];
+      const optionValues = new Set(field.options.map((opt) => opt.value));
+      if (
+        typeof current !== "string" ||
+        (current !== "" && !optionValues.has(current))
+      ) {
+        next[field.id] = "";
+      }
+    }
+
+    return next;
+  }, [flattenedFields, formValues]);
+
+  const flattened = useMemo(
+    () => flattenFields(items).map((field) => ({ id: field.id, field })),
+    [items]
+  );
   const interactiveFields = useMemo(
     () => flattened.filter((entry) => isInteractiveField(entry.field)),
     [flattened]
@@ -174,8 +180,8 @@ export default function InteractiveFormPreview({
           <TextField
             fullWidth
             value={
-              typeof formValues[id] === "string"
-                ? (formValues[id] as string)
+              typeof effectiveFormValues[id] === "string"
+                ? (effectiveFormValues[id] as string)
                 : ""
             }
             onChange={(event) => updateValue(id, event.target.value)}
@@ -197,8 +203,8 @@ export default function InteractiveFormPreview({
             fullWidth
             type="number"
             value={
-              typeof formValues[id] === "string"
-                ? (formValues[id] as string)
+              typeof effectiveFormValues[id] === "string"
+                ? (effectiveFormValues[id] as string)
                 : ""
             }
             onChange={(event) => updateValue(id, event.target.value)}
@@ -220,7 +226,7 @@ export default function InteractiveFormPreview({
             component="fieldset"
           >
             <Checkbox
-              checked={formValues[id] === true}
+              checked={effectiveFormValues[id] === true}
               onChange={(event) => updateValue(id, event.target.checked)}
             />
             {hasError && <FormHelperText>{errorText}</FormHelperText>}
@@ -235,8 +241,8 @@ export default function InteractiveFormPreview({
           <FormControl required={field.required} error={hasError}>
             <RadioGroup
               value={
-                typeof formValues[id] === "string"
-                  ? (formValues[id] as string)
+                typeof effectiveFormValues[id] === "string"
+                  ? (effectiveFormValues[id] as string)
                   : ""
               }
               onChange={(event) => updateValue(id, event.target.value)}
@@ -265,8 +271,8 @@ export default function InteractiveFormPreview({
           <FormControl fullWidth required={field.required} error={hasError}>
             <Select
               value={
-                typeof formValues[id] === "string"
-                  ? (formValues[id] as string)
+                typeof effectiveFormValues[id] === "string"
+                  ? (effectiveFormValues[id] as string)
                   : ""
               }
               onChange={(event) => updateValue(id, event.target.value)}
@@ -317,14 +323,14 @@ export default function InteractiveFormPreview({
     const errors: FieldErrorMap = {};
 
     for (const { id, field } of interactiveFields) {
-      const message = validateFieldValue(field, formValues[id]);
+      const message = validateFieldValue(field, effectiveFormValues[id]);
       if (message) errors[id] = message;
     }
 
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    buildSubmitPayload(flattened, formValues);
+    buildSubmitPayload(flattened, effectiveFormValues);
     setSubmitSuccessOpen(true);
   }
 
@@ -361,6 +367,7 @@ export default function InteractiveFormPreview({
                           )}
                           {col.fields.length === 0 ? (
                             <TextField
+                              disabled
                               fullWidth
                               value=""
                               placeholder="此欄暫無可填欄位"
