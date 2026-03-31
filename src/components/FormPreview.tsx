@@ -8,16 +8,30 @@ export interface FormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
   previewMode: "document" | "interactive";
+  titleBackgroundColor: string;
 }
 
 export default function FormPreview({
   items,
   formTitle,
   previewMode,
+  titleBackgroundColor,
 }: FormPreviewProps) {
   if (previewMode === "document") {
-    return <DocumentPreview items={items} formTitle={formTitle} />;
+    return (
+      <DocumentPreview
+        items={items}
+        formTitle={formTitle}
+        titleBackgroundColor={titleBackgroundColor}
+      />
+    );
   }
 
-  return <InteractiveFormPreview items={items} formTitle={formTitle} />;
+  return (
+    <InteractiveFormPreview
+      items={items}
+      formTitle={formTitle}
+      titleBackgroundColor={titleBackgroundColor}
+    />
+  );
 }

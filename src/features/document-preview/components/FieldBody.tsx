@@ -14,9 +14,14 @@ import {
 export interface FieldBodyProps {
   field: FormField;
   ariaLabel: string;
+  titleBackgroundColor: string;
 }
 
-export function FieldBody({ field, ariaLabel }: FieldBodyProps) {
+export function FieldBody({
+  field,
+  ariaLabel,
+  titleBackgroundColor,
+}: FieldBodyProps) {
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -139,7 +144,7 @@ export function FieldBody({ field, ariaLabel }: FieldBodyProps) {
         variant="body1"
         sx={{
           p: 1,
-          backgroundColor: "grey.50",
+          backgroundColor: titleBackgroundColor,
           height: "100%",
           width: "100%",
           display: "flex",

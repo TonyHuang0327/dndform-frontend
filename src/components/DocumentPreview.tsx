@@ -13,11 +13,13 @@ import { DocumentPreviewRows } from "@/features/document-preview/components/Docu
 export interface DocumentPreviewProps {
   items: CanvasItem[];
   formTitle: string;
+  titleBackgroundColor: string;
 }
 
 export default function DocumentPreview({
   items,
   formTitle,
+  titleBackgroundColor,
 }: DocumentPreviewProps) {
   if (items.length === 0) {
     return (
@@ -48,6 +50,7 @@ export default function DocumentPreview({
           p: 1,
           borderRight: "1px solid black",
           borderBottom: "1px solid black",
+          backgroundColor: titleBackgroundColor,
           textAlign: "center",
         }}
       >
@@ -56,7 +59,10 @@ export default function DocumentPreview({
         </Typography>
       </Grid>
 
-      <DocumentPreviewRows items={items} />
+      <DocumentPreviewRows
+        items={items}
+        titleBackgroundColor={titleBackgroundColor}
+      />
     </Grid>
   );
 }

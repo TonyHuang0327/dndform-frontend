@@ -41,6 +41,7 @@ interface FlattenedFieldEntry {
 export interface InteractiveFormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
+  titleBackgroundColor: string;
 }
 
 function isInteractiveField(field: FormField): boolean {
@@ -127,6 +128,7 @@ function buildSubmitPayload(
 export default function InteractiveFormPreview({
   items,
   formTitle,
+  titleBackgroundColor,
 }: InteractiveFormPreviewProps) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({});
@@ -370,9 +372,19 @@ export default function InteractiveFormPreview({
 
   return (
     <Paper variant="outlined" sx={{ p: 2, width: "70%", margin: "0 auto" }}>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-        {formTitle}
-      </Typography>
+      <Box
+        sx={{
+          mb: 2,
+          p: 1,
+          backgroundColor: `${titleBackgroundColor}22`,
+          borderLeft: `6px solid ${titleBackgroundColor}`,
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          {formTitle}
+        </Typography>
+      </Box>
 
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Grid container spacing={1}>

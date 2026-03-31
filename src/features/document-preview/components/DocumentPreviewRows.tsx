@@ -14,9 +14,13 @@ import { FieldBody } from "./FieldBody";
 
 interface DocumentPreviewRowsProps {
   items: CanvasItem[];
+  titleBackgroundColor: string;
 }
 
-export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
+export function DocumentPreviewRows({
+  items,
+  titleBackgroundColor,
+}: DocumentPreviewRowsProps) {
   const rows: React.ReactNode[] = [];
   let currentRowSpan = 0;
   const topLevelOrderById = buildTopLevelFieldOrderMap(items);
@@ -103,6 +107,7 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
             ariaLabel={`${
               plain ? `第${colIndex + 1}欄` : colLabel?.trim() || "未命名欄位"
             }-${field.type}-${fieldIndex + 1}`}
+            titleBackgroundColor={titleBackgroundColor}
           />
         </Grid>
       );
@@ -151,7 +156,7 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
                   size={4}
                   sx={{
                     p: 1,
-                    backgroundColor: "grey.50",
+                    backgroundColor: titleBackgroundColor,
                     borderRight: "1px solid black",
                   }}
                 >
@@ -193,6 +198,7 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
           <FieldBody
             field={item}
             ariaLabel={`${item.type}-${topLevelFieldOrder ?? index + 1}`}
+            titleBackgroundColor={titleBackgroundColor}
           />
         </Box>
       </Grid>
