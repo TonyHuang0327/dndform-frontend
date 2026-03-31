@@ -4,6 +4,7 @@ import {
   FIELD_TYPE_DEFINITIONS,
   type FormFieldType,
   type LayoutType,
+  type LayoutVariant,
 } from "@/types/form";
 import { Box, Grid, Paper, Typography } from "@mui/material";
 import NotesIcon from "@mui/icons-material/Notes";
@@ -35,22 +36,30 @@ function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
   );
 }
 
-const LAYOUT_TYPE_DEFINITIONS: { layoutType: LayoutType; label: string }[] = [
-  { layoutType: "1col", label: "單欄" },
-  { layoutType: "2col", label: "雙欄" },
+const LAYOUT_TYPE_DEFINITIONS: {
+  layoutType: LayoutType;
+  layoutVariant: LayoutVariant;
+  label: string;
+}[] = [
+  { layoutType: "1col", layoutVariant: "labeled", label: "單欄" },
+  { layoutType: "2col", layoutVariant: "labeled", label: "雙欄" },
+  { layoutType: "1col", layoutVariant: "plain", label: "無標題單欄" },
+  { layoutType: "2col", layoutVariant: "plain", label: "無標題雙欄" },
 ];
 
 function LayoutItem({
   layoutType,
+  layoutVariant,
   label,
 }: {
   layoutType: LayoutType;
+  layoutVariant: LayoutVariant;
   label: string;
 }) {
-  const id = `palette-layout-${layoutType}`;
+  const id = `palette-layout-${layoutType}-${layoutVariant}`;
   const { ref } = useDraggable({
     id,
-    data: { layoutType, source: "palette" as const },
+    data: { layoutType, layoutVariant, source: "palette" as const },
   });
 
   return (
@@ -96,9 +105,13 @@ export default function ComponentPalette() {
       </Grid>
       <Typography color="text.secondary">版面配置</Typography>
       <Grid container spacing={2}>
-        {LAYOUT_TYPE_DEFINITIONS.map(({ layoutType, label }) => (
-          <Grid size={6} key={layoutType}>
-            <LayoutItem layoutType={layoutType} label={label} />
+        {LAYOUT_TYPE_DEFINITIONS.map(({ layoutType, layoutVariant, label }) => (
+          <Grid size={6} key={`${layoutType}-${layoutVariant}`}>
+            <LayoutItem
+              layoutType={layoutType}
+              layoutVariant={layoutVariant}
+              label={label}
+            />
           </Grid>
         ))}
       </Grid>

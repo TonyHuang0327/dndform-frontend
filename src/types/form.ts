@@ -10,7 +10,8 @@ export type FormFieldType =
   | "checkbox"
   | "radio"
   | "select"
-  | "ocr-list";
+  | "ocr-list"
+  | "labeled-input";
 export interface FormFieldOption {
   value: string;
   label: string;
@@ -48,11 +49,15 @@ export interface FormFieldOcrList extends FormFieldBase {
   type: "ocr-list";
   selectedOcr?: { id: number; name: string }[];
 }
+export interface FormFieldLabeledInput extends FormFieldBase {
+  type: "labeled-input";
+}
 export type FormField =
   | FormFieldTextLike
   | FormFieldCheckbox
   | FormFieldWithOptions
-  | FormFieldOcrList;
+  | FormFieldOcrList
+  | FormFieldLabeledInput;
 
 export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   text: "單行文字",
@@ -62,6 +67,7 @@ export const DEFAULT_LABELS: Record<FormFieldType, string> = {
   radio: "單選",
   select: "下拉選單",
   "ocr-list": "OCR列表",
+  "labeled-input": "標題方塊",
 };
 
 export const FIELD_TYPE_DEFINITIONS: { type: FormFieldType; label: string }[] =
@@ -113,6 +119,14 @@ export function createField(type: FormFieldType): FormField {
         span,
         required: false,
       };
+    case "labeled-input":
+      return {
+        id,
+        type,
+        label,
+        span,
+        required: false,
+      };
     default: {
       const _: never = type;
       return _;
@@ -135,6 +149,7 @@ export interface LayoutColumn {
 export interface LayoutContainer {
   id: string;
   type: "layout";
+  variant: LayoutVariant;
   columns: LayoutColumn[];
 }
 
@@ -161,8 +176,12 @@ export function isFormField(item: CanvasItem): item is FormField {
 // ── Layout Factory ────────────────────────────────────────────
 
 export type LayoutType = "1col" | "2col";
+export type LayoutVariant = "labeled" | "plain";
 
-export function createLayoutContainer(layoutType: LayoutType): LayoutContainer {
+export function createLayoutContainer(
+  layoutType: LayoutType,
+  variant: LayoutVariant = "labeled"
+): LayoutContainer {
   const counts: Record<LayoutType, number> = {
     "1col": 1,
     "2col": 2,
@@ -172,13 +191,18 @@ export function createLayoutContainer(layoutType: LayoutType): LayoutContainer {
   return {
     id: crypto.randomUUID(),
     type: "layout",
+    variant,
     columns: Array.from({ length: count }, () => ({
       id: crypto.randomUUID(),
       span,
-      label: "標題",
+      label: variant === "plain" ? "" : "標題",
       fields: [],
     })),
   };
+}
+
+export function isPlainLayout(container: LayoutContainer): boolean {
+  return container.variant === "plain";
 }
 
 // ── Helpers for nested lookup ─────────────────────────────────

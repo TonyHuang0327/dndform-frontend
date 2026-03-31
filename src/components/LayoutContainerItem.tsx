@@ -1,12 +1,27 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/react";
-import { Box, Grid, TextField, Typography } from "@mui/material";
-import type { FormField, LayoutContainer } from "@/types/form";
+import {
+  Box,
+  Card,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
+import {
+  isPlainLayout,
+  type FormField,
+  type LayoutContainer,
+} from "@/types/form";
 import SortableFieldItem from "./SortableFieldItem";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useSortable } from "@dnd-kit/react/sortable";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 export interface LayoutContainerItemProps {
   container: LayoutContainer;
+  index: number;
   /** 目前被選取的欄位 id，用於 SortableFieldItem highlight */
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -22,6 +37,7 @@ export interface LayoutContainerItemProps {
 
 const LABEL_WIDTH = 150;
 type ColumnSlotProps = {
+  isPlain: boolean;
   containerId: string;
   columnId: string;
   columnLabel: string;
@@ -37,6 +53,7 @@ type ColumnSlotProps = {
   ) => void;
 };
 function ColumnSlot({
+  isPlain,
   containerId,
   columnId,
   columnLabel,
@@ -59,44 +76,48 @@ function ColumnSlot({
         bgcolor: isDropTarget ? "action.hover" : "background.paper",
       }}
     >
-      <Box
-        sx={{
-          width: LABEL_WIDTH,
-          minWidth: LABEL_WIDTH,
-          flexShrink: 0,
-          borderRight: "1px solid black",
-          display: "flex",
-          p: 1,
-          alignItems: "center",
-        }}
-      >
-        <TextField
-          id={`${columnId}-label`}
-          value={columnLabel}
-          onChange={(e) =>
-            onChangeColumnLabel(containerId, columnId, e.target.value)
-          }
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          aria-label="欄位標題"
-          variant="outlined"
+      {!isPlain && (
+        <Box
           sx={{
-            "& .MuiInputBase-input": {
-              padding: 0,
-            },
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "& .Mui-focused": {
-              backgroundColor: "aliceblue",
-            },
+            width: LABEL_WIDTH,
+            minWidth: LABEL_WIDTH,
+            flexShrink: 0,
+            borderRight: "1px solid black",
+            display: "flex",
+            p: 1,
+            alignItems: "center",
           }}
-        />
-      </Box>
+        >
+          <TextField
+            id={`${columnId}-label`}
+            value={columnLabel}
+            onChange={(e) =>
+              onChangeColumnLabel(containerId, columnId, e.target.value)
+            }
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label="欄位標題"
+            variant="outlined"
+            sx={{
+              "& .MuiInputBase-input": {
+                padding: 0,
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "& .Mui-focused": {
+                backgroundColor: "aliceblue",
+              },
+            }}
+          />
+        </Box>
+      )}
 
       <Box
         sx={{
           flex: 1,
+          display: "flex",
+          flexDirection: "row",
         }}
       >
         {fields.length === 0 ? (
@@ -128,14 +149,25 @@ function ColumnSlot({
 
 export default function LayoutContainerItem({
   container,
+  index,
   selectedId,
   onSelect,
   onDelete,
   onChange,
   onChangeColumnLabel,
 }: LayoutContainerItemProps) {
+  const plain = isPlainLayout(container);
+  const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
+    id: container.id,
+    index,
+  });
   return (
-    <Box
+    <Card
+      ref={(node) => {
+        ref(node);
+        sourceRef(node);
+        targetRef(node);
+      }}
       sx={{
         border: "1px solid",
         borderColor: "grey.300",
@@ -143,24 +175,26 @@ export default function LayoutContainerItem({
         p: 1,
         position: "relative",
         bgcolor: "grey.50",
+        opacity: isDragging ? 0.6 : 1,
       }}
     >
-      {/* 右上角刪除容器按鈕 */}
-      {/* <IconButton
-        size="small"
-        color="error"
-        onClick={() => onDelete(container.id)}
-        aria-label="刪除版面容器"
-        sx={{ position: "absolute", top: 4, right: 4, zIndex: 1 }}
-      >
-        <DeleteIcon fontSize="small" />
-      </IconButton> */}
-
       {/* 格子區域（橫向排列） */}
       <Box sx={{ display: "flex", gap: 1 }}>
+        <IconButton
+          ref={handleRef}
+          sx={{
+            cursor: "grab",
+            color: "text.secondary",
+            "&:active": { cursor: "grabbing" },
+          }}
+          aria-label="拖動排序"
+        >
+          <DragIndicatorIcon fontSize="small" />
+        </IconButton>
         {container.columns.map((col) => (
-          <Box key={col.id} sx={{ flex: col.span }}>
+          <Grid key={col.id} size={col.span}>
             <ColumnSlot
+              isPlain={plain}
               containerId={container.id}
               columnId={col.id}
               columnLabel={col.label ?? "標題"}
@@ -171,9 +205,17 @@ export default function LayoutContainerItem({
               onChange={onChange}
               onChangeColumnLabel={onChangeColumnLabel}
             />
-          </Box>
+          </Grid>
         ))}
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => onDelete(container.id)}
+          aria-label="刪除版面容器"
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       </Box>
-    </Box>
+    </Card>
   );
 }

@@ -78,6 +78,7 @@ export default function FormCanvas({
                   onDelete={onDelete}
                   onChange={onChange}
                   onChangeColumnLabel={onChangeColumnLabel}
+                  index={index}
                 />
               ) : (
                 <SortableFieldItem
