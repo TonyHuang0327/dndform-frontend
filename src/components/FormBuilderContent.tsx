@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { move } from "@dnd-kit/helpers";
 import ComponentPalette from "@/components/ComponentPalette";
 import FieldPropertyEditor from "@/components/FieldPropertyEditor";
@@ -8,7 +8,6 @@ import FormCanvas, { CANVAS_ID } from "@/components/FormCanvas";
 import FormPreview from "@/components/FormPreview";
 import {
   buildTemplateV1,
-  getMaxTemplateFileSizeBytes,
   parseTemplateJson,
   serializeTemplate,
   TemplateIOError,
@@ -43,6 +42,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useReactToPrint } from "react-to-print";
@@ -51,6 +51,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 type Mode = "design" | "preview";
 type PreviewMode = "document" | "interactive";
+type JsonDialogTab = "import" | "export";
 type DragEndEventArg = Parameters<
   NonNullable<DragDropEventHandlers["onDragEnd"]>
 >[0];
@@ -64,8 +65,12 @@ export default function FormBuilderContent() {
   const [mode, setMode] = useState<Mode>("design");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("document");
   const [formTitle, setFormTitle] = useState("未命名表單");
+  const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
+  const [jsonDialogTab, setJsonDialogTab] = useState<JsonDialogTab>("import");
+  const [importJsonText, setImportJsonText] = useState("");
+  const [exportJsonText, setExportJsonText] = useState("");
   const [importConfirmOpen, setImportConfirmOpen] = useState(false);
-  const [pendingImportFile, setPendingImportFile] = useState<File | null>(null);
+  const [pendingImportText, setPendingImportText] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     open: boolean;
     severity: "success" | "error" | "warning";
@@ -339,7 +344,6 @@ export default function FormBuilderContent() {
   // ── Print ────────────────────────────────────────────────────
 
   const previewRef = useRef<HTMLDivElement>(null);
-  const importInputRef = useRef<HTMLInputElement>(null);
   const handlePrintPreview = useReactToPrint({
     contentRef: previewRef,
     documentTitle: "form-preview",
@@ -358,59 +362,46 @@ export default function FormBuilderContent() {
     setFeedback({ open: true, severity, message });
   }
 
-  function buildExportFilename() {
-    const now = new Date();
-    const pad2 = (value: number) => String(value).padStart(2, "0");
-    const stamp = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(
-      now.getDate()
-    )}-${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(
-      now.getSeconds()
-    )}`;
-    return `form-template-${stamp}.json`;
+  function buildCurrentTemplateJson(): string {
+    return serializeTemplate(buildTemplateV1(formTitle, items));
   }
 
-  function handleExportTemplate() {
-    try {
-      const template = buildTemplateV1(formTitle, items);
-      const content = serializeTemplate(template);
-      const blob = new Blob([content], {
-        type: "application/json;charset=utf-8",
-      });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = buildExportFilename();
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-      setFeedbackMessage("success", "JSON 匯出成功");
-    } catch (error) {
-      console.error(error);
-      setFeedbackMessage("error", "匯出失敗，請稍後重試");
+  function openJsonDialog(tab: JsonDialogTab) {
+    setJsonDialogTab(tab);
+    if (tab === "export") {
+      setExportJsonText(buildCurrentTemplateJson());
+    }
+    setJsonDialogOpen(true);
+  }
+
+  function handleJsonDialogTabChange(_event: React.SyntheticEvent, value: JsonDialogTab) {
+    setJsonDialogTab(value);
+    if (value === "export") {
+      setExportJsonText(buildCurrentTemplateJson());
     }
   }
 
-  function handleSelectImportFile() {
-    if (!importInputRef.current) return;
-    importInputRef.current.value = "";
-    importInputRef.current.click();
-  }
+  async function applyImportJsonText(text: string) {
+    if (text.trim() === "") {
+      setFeedbackMessage("error", "請先貼上 JSON");
+      return;
+    }
 
-  async function applyImportFile(file: File) {
-    if (file.size > getMaxTemplateFileSizeBytes()) {
+    const textBytes = new TextEncoder().encode(text).length;
+    if (textBytes > 2 * 1024 * 1024) {
       setFeedbackMessage("error", "範本內容過大，請拆分後再匯入");
       return;
     }
 
     try {
-      const text = await file.text();
       const parsed = parseTemplateJson(text);
       const { template, warnings } = validateAndNormalizeTemplate(parsed);
       setFormTitle(template.formTitle);
       setItemsNormalized(template.items);
       setSelectedId(null);
       setMode("design");
+      setJsonDialogOpen(false);
+      setImportJsonText("");
       if (warnings.length > 0) {
         setFeedbackMessage("warning", "匯入成功，部分欄位已自動修正");
         return;
@@ -425,28 +416,55 @@ export default function FormBuilderContent() {
     }
   }
 
-  async function handleImportInputChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function handleImportApply() {
+    const text = importJsonText.trim();
+    if (text === "") {
+      setFeedbackMessage("error", "請先貼上 JSON");
+      return;
+    }
     if (items.length > 0) {
-      setPendingImportFile(file);
+      setPendingImportText(text);
       setImportConfirmOpen(true);
       return;
     }
-    await applyImportFile(file);
+    await applyImportJsonText(text);
   }
 
   function handleConfirmImportCancel() {
     setImportConfirmOpen(false);
-    setPendingImportFile(null);
+    setPendingImportText(null);
   }
 
   async function handleConfirmImportApply() {
-    const file = pendingImportFile;
+    const text = pendingImportText;
     setImportConfirmOpen(false);
-    setPendingImportFile(null);
-    if (!file) return;
-    await applyImportFile(file);
+    setPendingImportText(null);
+    if (!text) return;
+    await applyImportJsonText(text);
+  }
+
+  function handleImportJsonPaste(event: React.ClipboardEvent<HTMLElement>) {
+    const pasted = event.clipboardData.getData("text");
+    if (pasted.trim() === "") return;
+    event.preventDefault();
+    try {
+      const parsed = JSON.parse(pasted);
+      const pretty = JSON.stringify(parsed, null, 2);
+      setImportJsonText(pretty);
+    } catch {
+      setImportJsonText(pasted);
+      setFeedbackMessage("error", "JSON 格式錯誤，請檢查檔案內容");
+    }
+  }
+
+  async function handleCopyExportJson() {
+    try {
+      const content = exportJsonText || buildCurrentTemplateJson();
+      await navigator.clipboard.writeText(content);
+      setFeedbackMessage("success", "已複製 JSON 到剪貼簿");
+    } catch {
+      setFeedbackMessage("error", "複製失敗，請手動複製");
+    }
   }
 
   // ── Render ───────────────────────────────────────────────────
@@ -460,10 +478,10 @@ export default function FormBuilderContent() {
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
         {mode === "design" && (
           <Stack direction="row" spacing={1} sx={{ mr: 1 }}>
-            <Button variant="outlined" onClick={handleExportTemplate}>
+            <Button variant="outlined" onClick={() => openJsonDialog("export")}>
               匯出 JSON
             </Button>
-            <Button variant="outlined" onClick={handleSelectImportFile}>
+            <Button variant="outlined" onClick={() => openJsonDialog("import")}>
               匯入 JSON
             </Button>
           </Stack>
@@ -575,13 +593,57 @@ export default function FormBuilderContent() {
         </Box>
       )}
 
-      <input
-        ref={importInputRef}
-        type="file"
-        accept=".json,application/json"
-        style={{ display: "none" }}
-        onChange={handleImportInputChange}
-      />
+      <Dialog
+        open={jsonDialogOpen}
+        onClose={() => setJsonDialogOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>JSON 操作</DialogTitle>
+        <DialogContent>
+          <Tabs
+            value={jsonDialogTab}
+            onChange={handleJsonDialogTabChange}
+            aria-label="JSON 操作"
+            sx={{ mb: 2 }}
+          >
+            <Tab value="import" label="匯入" />
+            <Tab value="export" label="匯出" />
+          </Tabs>
+
+          {jsonDialogTab === "import" ? (
+            <TextField
+              fullWidth
+              multiline
+              minRows={14}
+              value={importJsonText}
+              placeholder="請貼上表單 JSON"
+              onChange={(event) => setImportJsonText(event.target.value)}
+              onPaste={handleImportJsonPaste}
+            />
+          ) : (
+            <TextField
+              fullWidth
+              multiline
+              minRows={14}
+              value={exportJsonText}
+              slotProps={{ input: { readOnly: true } }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setJsonDialogOpen(false)}>關閉</Button>
+          {jsonDialogTab === "import" ? (
+            <Button variant="contained" onClick={() => void handleImportApply()}>
+              套用
+            </Button>
+          ) : (
+            <Button variant="contained" onClick={() => void handleCopyExportJson()}>
+              複製 JSON
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={importConfirmOpen} onClose={handleConfirmImportCancel}>
         <DialogTitle>覆蓋目前表單？</DialogTitle>
