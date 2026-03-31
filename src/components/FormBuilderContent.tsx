@@ -136,7 +136,7 @@ export default function FormBuilderContent() {
 
     return fields.map((field, index) => ({
       ...field,
-      span: base + (index < remainder ? 1 : 0),
+      span: Math.max(1, base + (index < remainder ? 1 : 0)),
     }));
   }
 

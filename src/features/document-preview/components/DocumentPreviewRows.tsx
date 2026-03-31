@@ -46,11 +46,12 @@ export function DocumentPreviewRows({ items }: DocumentPreviewRowsProps) {
       return (
         <Grid size={12}>
           <TextField
+            disabled
             fullWidth
             aria-label={`${
               plain ? `第${colIndex + 1}欄` : colLabel?.trim() || "未命名欄位"
             }-尚未加入元件`}
-            placeholder="尚未加入元件-預設為文字輸入框"
+            placeholder="尚未加入元件"
             sx={{
               "& .MuiOutlinedInput-notchedOutline": {
                 border: "none",

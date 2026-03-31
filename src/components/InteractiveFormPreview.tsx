@@ -173,12 +173,14 @@ export default function InteractiveFormPreview({
     const errorText = fieldErrors[id];
     const hasError = Boolean(errorText);
     const span = field.span ?? 12;
+    const accessibleName = field.label?.trim() ? field.label : `未命名欄位-${id}`;
 
     if (field.type === "text" || field.type === "textarea") {
       return (
         <Grid key={id} size={span}>
           <TextField
             fullWidth
+            inputProps={{ "aria-label": accessibleName }}
             value={
               typeof effectiveFormValues[id] === "string"
                 ? (effectiveFormValues[id] as string)
@@ -202,6 +204,7 @@ export default function InteractiveFormPreview({
           <TextField
             fullWidth
             type="number"
+            inputProps={{ "aria-label": accessibleName }}
             value={
               typeof effectiveFormValues[id] === "string"
                 ? (effectiveFormValues[id] as string)
@@ -226,6 +229,7 @@ export default function InteractiveFormPreview({
             component="fieldset"
           >
             <Checkbox
+              inputProps={{ "aria-label": accessibleName }}
               checked={effectiveFormValues[id] === true}
               onChange={(event) => updateValue(id, event.target.checked)}
             />
@@ -240,6 +244,7 @@ export default function InteractiveFormPreview({
         <Grid key={id} size={span}>
           <FormControl required={field.required} error={hasError}>
             <RadioGroup
+              aria-label={accessibleName}
               value={
                 typeof effectiveFormValues[id] === "string"
                   ? (effectiveFormValues[id] as string)
@@ -270,6 +275,7 @@ export default function InteractiveFormPreview({
         <Grid key={id} size={span}>
           <FormControl fullWidth required={field.required} error={hasError}>
             <Select
+              inputProps={{ "aria-label": accessibleName }}
               value={
                 typeof effectiveFormValues[id] === "string"
                   ? (effectiveFormValues[id] as string)
@@ -288,6 +294,34 @@ export default function InteractiveFormPreview({
             </Select>
             {hasError && <FormHelperText>{errorText}</FormHelperText>}
           </FormControl>
+        </Grid>
+      );
+    }
+
+    if (field.type === "ocr-list") {
+      const selectedOcr = field.selectedOcr ?? [];
+      return (
+        <Grid key={id} size={span}>
+          {selectedOcr.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              尚未選擇 OCR
+            </Typography>
+          ) : (
+            <Box>
+              {selectedOcr.map((ocr, index) => (
+                <Box
+                  key={ocr.id}
+                  sx={{
+                    p: 1,
+                    borderBottom:
+                      index === selectedOcr.length - 1 ? "none" : "1px solid black",
+                  }}
+                >
+                  <Typography variant="body1">{ocr.name}</Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
         </Grid>
       );
     }
