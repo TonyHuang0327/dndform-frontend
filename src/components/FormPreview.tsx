@@ -9,6 +9,7 @@ export interface FormPreviewProps {
   formTitle: string;
   previewMode: "document" | "interactive";
   titleBackgroundColor: string;
+  titleFontColor: string;
 }
 
 export default function FormPreview({
@@ -16,6 +17,7 @@ export default function FormPreview({
   formTitle,
   previewMode,
   titleBackgroundColor,
+  titleFontColor,
 }: FormPreviewProps) {
   if (previewMode === "document") {
     return (
@@ -23,6 +25,7 @@ export default function FormPreview({
         items={items}
         formTitle={formTitle}
         titleBackgroundColor={titleBackgroundColor}
+        titleFontColor={titleFontColor}
       />
     );
   }
@@ -32,6 +35,7 @@ export default function FormPreview({
       items={items}
       formTitle={formTitle}
       titleBackgroundColor={titleBackgroundColor}
+      titleFontColor={titleFontColor}
     />
   );
 }

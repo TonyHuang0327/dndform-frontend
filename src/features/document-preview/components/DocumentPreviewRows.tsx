@@ -16,11 +16,13 @@ import { alpha } from "@mui/material/styles";
 interface DocumentPreviewRowsProps {
   items: CanvasItem[];
   titleBackgroundColor: string;
+  titleFontColor: string;
 }
 
 export function DocumentPreviewRows({
   items,
   titleBackgroundColor,
+  titleFontColor,
 }: DocumentPreviewRowsProps) {
   const rows: React.ReactNode[] = [];
   let currentRowSpan = 0;
@@ -109,6 +111,7 @@ export function DocumentPreviewRows({
               plain ? `第${colIndex + 1}欄` : colLabel?.trim() || "未命名欄位"
             }-${field.type}-${fieldIndex + 1}`}
             titleBackgroundColor={titleBackgroundColor}
+            titleFontColor={titleFontColor}
           />
         </Grid>
       );
@@ -163,7 +166,7 @@ export function DocumentPreviewRows({
                     alignItems: "center",
                   }}
                 >
-                  <Typography variant="body1">
+                  <Typography variant="body1" sx={{ color: titleFontColor }}>
                     {col.label?.trim() ? col.label : "未命名欄位"}
                   </Typography>
                 </Grid>
@@ -202,6 +205,7 @@ export function DocumentPreviewRows({
             field={item}
             ariaLabel={`${item.type}-${topLevelFieldOrder ?? index + 1}`}
             titleBackgroundColor={titleBackgroundColor}
+            titleFontColor={titleFontColor}
           />
         </Box>
       </Grid>

@@ -60,6 +60,7 @@ type DragOverEventArg = Parameters<
 >[0];
 
 const DEFAULT_TITLE_BACKGROUND_COLOR = "#f5f5f5";
+const DEFAULT_TITLE_FONT_COLOR = "#111111";
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 export default function FormBuilderContent() {
@@ -75,6 +76,7 @@ export default function FormBuilderContent() {
   const [titleBackgroundColor, setTitleBackgroundColor] = useState(
     DEFAULT_TITLE_BACKGROUND_COLOR
   );
+  const [titleFontColor, setTitleFontColor] = useState(DEFAULT_TITLE_FONT_COLOR);
   const [importConfirmOpen, setImportConfirmOpen] = useState(false);
   const [pendingImportText, setPendingImportText] = useState<string | null>(
     null
@@ -101,12 +103,21 @@ export default function FormBuilderContent() {
       : DEFAULT_TITLE_BACKGROUND_COLOR;
   }
 
+  function normalizeTitleFontColor(input: string): string {
+    return HEX_COLOR_PATTERN.test(input) ? input : DEFAULT_TITLE_FONT_COLOR;
+  }
+
   function handleTitleBackgroundColorChange(next: string) {
     setTitleBackgroundColor(normalizeTitleBackgroundColor(next));
   }
 
-  function handleResetTitleBackgroundColor() {
+  function handleTitleFontColorChange(next: string) {
+    setTitleFontColor(normalizeTitleFontColor(next));
+  }
+
+  function handleResetTitleColors() {
     setTitleBackgroundColor(DEFAULT_TITLE_BACKGROUND_COLOR);
+    setTitleFontColor(DEFAULT_TITLE_FONT_COLOR);
   }
 
   function normalizeItemsWithContainerMeta(input: CanvasItem[]) {
@@ -533,6 +544,48 @@ export default function FormBuilderContent() {
                 gap: 2,
               }}
             >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  p: 1.5,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1,
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  標題色彩設定
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    標題背景色
+                  </Typography>
+                  <input
+                    type="color"
+                    aria-label="標題背景色"
+                    value={titleBackgroundColor}
+                    onChange={(event) =>
+                      handleTitleBackgroundColorChange(event.target.value)
+                    }
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    標題文字色
+                  </Typography>
+                  <input
+                    type="color"
+                    aria-label="標題文字色"
+                    value={titleFontColor}
+                    onChange={(event) =>
+                      handleTitleFontColorChange(event.target.value)
+                    }
+                  />
+                  <Button size="small" onClick={handleResetTitleColors}>
+                    重設預設色
+                  </Button>
+                </Box>
+              </Box>
               <FormCanvas
                 items={items}
                 selectedId={selectedId}
@@ -599,32 +652,16 @@ export default function FormBuilderContent() {
               <Tab value="document" label="文件模式" />
               <Tab value="interactive" label="表單模式" />
             </Tabs>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Typography variant="body2" color="text.secondary">
-                標題背景色
-              </Typography>
-              <input
-                type="color"
-                aria-label="標題背景色"
-                value={titleBackgroundColor}
-                onChange={(event) =>
-                  handleTitleBackgroundColorChange(event.target.value)
-                }
-              />
-              <Button size="small" onClick={handleResetTitleBackgroundColor}>
-                重設預設色
+            {previewMode === "document" && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handlePrintPreview()}
+                disabled={items.length === 0}
+              >
+                列印 / 儲存為PDF
               </Button>
-              {previewMode === "document" && (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => handlePrintPreview()}
-                  disabled={items.length === 0}
-                >
-                  列印 / 儲存為PDF
-                </Button>
-              )}
-            </Box>
+            )}
           </Box>
           <div ref={previewRef}>
             <FormPreview
@@ -632,6 +669,7 @@ export default function FormBuilderContent() {
               formTitle={formTitle}
               previewMode={previewMode}
               titleBackgroundColor={titleBackgroundColor}
+              titleFontColor={titleFontColor}
             />
           </div>
         </Box>
