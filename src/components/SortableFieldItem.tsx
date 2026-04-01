@@ -96,7 +96,7 @@ export default function SortableFieldItem({
         targetRef(node);
       }}
       sx={{
-        p: 0,
+        p: 1,
         border: 2,
         borderColor: isSelected ? "primary.main" : "transparent",
         display: "flex",
@@ -137,7 +137,6 @@ export default function SortableFieldItem({
             variant="outlined"
             size="small"
             sx={{
-              width: "100%",
               "& .MuiInputBase-input": {
                 padding: "6px 8px",
               },

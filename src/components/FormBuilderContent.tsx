@@ -76,7 +76,9 @@ export default function FormBuilderContent() {
   const [titleBackgroundColor, setTitleBackgroundColor] = useState(
     DEFAULT_TITLE_BACKGROUND_COLOR
   );
-  const [titleFontColor, setTitleFontColor] = useState(DEFAULT_TITLE_FONT_COLOR);
+  const [titleFontColor, setTitleFontColor] = useState(
+    DEFAULT_TITLE_FONT_COLOR
+  );
   const [importConfirmOpen, setImportConfirmOpen] = useState(false);
   const [pendingImportText, setPendingImportText] = useState<string | null>(
     null
@@ -511,23 +513,61 @@ export default function FormBuilderContent() {
 
   return (
     <Box sx={{ minHeight: "100vh", boxSizing: "border-box", p: 2 }}>
-      <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        {mode === "design" && (
-          <Stack direction="row" spacing={1} sx={{ mr: 1 }}>
-            <Button variant="outlined" onClick={() => openJsonDialog("export")}>
-              匯出 JSON
+      <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="h5">
+            {mode === "design" ? "表單設計" : "表單預覽"}
+          </Typography>
+          {mode === "preview" && (
+            <Tabs
+              value={previewMode}
+              onChange={(_, value: PreviewMode) => {
+                if (value === "document" || value === "interactive") {
+                  setPreviewMode(value);
+                }
+              }}
+              aria-label="預覽模式切換"
+            >
+              <Tab value="document" label="文件模式" />
+              <Tab value="interactive" label="表單模式" />
+            </Tabs>
+          )}
+        </Stack>
+
+        <Stack direction="row" spacing={1}>
+          {mode === "design" && (
+            <Stack direction="row" spacing={1} sx={{ mr: 1 }}>
+              <Button
+                variant="outlined"
+                onClick={() => openJsonDialog("export")}
+              >
+                匯出 JSON
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => openJsonDialog("import")}
+              >
+                匯入 JSON
+              </Button>
+            </Stack>
+          )}
+          {mode === "preview" && previewMode === "document" && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handlePrintPreview()}
+              disabled={items.length === 0}
+            >
+              列印 / 儲存為PDF
             </Button>
-            <Button variant="outlined" onClick={() => openJsonDialog("import")}>
-              匯入 JSON
-            </Button>
-          </Stack>
-        )}
-        <Button
-          variant="contained"
-          onClick={() => setMode(mode === "design" ? "preview" : "design")}
-        >
-          {mode === "design" ? "點擊預覽" : "回到設計"}
-        </Button>
+          )}
+          <Button
+            variant="contained"
+            onClick={() => setMode(mode === "design" ? "preview" : "design")}
+          >
+            {mode === "design" ? "點擊預覽" : "回到設計"}
+          </Button>
+        </Stack>
       </Stack>
 
       {mode === "design" ? (
@@ -637,32 +677,6 @@ export default function FormBuilderContent() {
         </DragDropProvider>
       ) : (
         <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box
-            sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}
-          >
-            <Tabs
-              value={previewMode}
-              onChange={(_, value: PreviewMode) => {
-                if (value === "document" || value === "interactive") {
-                  setPreviewMode(value);
-                }
-              }}
-              aria-label="預覽模式切換"
-            >
-              <Tab value="document" label="文件模式" />
-              <Tab value="interactive" label="表單模式" />
-            </Tabs>
-            {previewMode === "document" && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => handlePrintPreview()}
-                disabled={items.length === 0}
-              >
-                列印 / 儲存為PDF
-              </Button>
-            )}
-          </Box>
           <div ref={previewRef}>
             <FormPreview
               items={items}

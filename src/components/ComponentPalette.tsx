@@ -7,9 +7,37 @@ import {
   type LayoutVariant,
 } from "@/types/form";
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import NotesIcon from "@mui/icons-material/Notes";
-import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewListIcon from '@mui/icons-material/ViewList';
+import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
 import { useDraggable } from "@dnd-kit/react";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import SubjectIcon from "@mui/icons-material/Subject";
+import PinIcon from "@mui/icons-material/Pin";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
+import ArrowDropDownCircleIcon from "@mui/icons-material/ArrowDropDownCircle";
+import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import TitleIcon from "@mui/icons-material/Title";
+
+const FIELD_TYPE_ICONS: Record<FormFieldType, React.ReactNode> = {
+  text: <TextFieldsIcon fontSize="small" />,
+  textarea: <SubjectIcon fontSize="small" />,
+  number: <PinIcon fontSize="small" />,
+  checkbox: <CheckBoxIcon fontSize="small" />,
+  radio: <RadioButtonCheckedIcon fontSize="small" />,
+  select: <ArrowDropDownCircleIcon fontSize="small" />,
+  "ocr-list": <DocumentScannerIcon fontSize="small" />,
+  "labeled-input": <TitleIcon fontSize="small" />,
+};
+
+type LayoutIconKey = `${LayoutType}-${LayoutVariant}`;
+
+const LAYOUT_TYPE_ICONS: Record<LayoutIconKey, React.ReactNode> = {
+  "1col-labeled": <ViewListIcon fontSize="small" />,
+  "2col-labeled": <VerticalSplitIcon fontSize="small" />,
+  "1col-plain": <ViewListIcon fontSize="small" />,
+  "2col-plain": <VerticalSplitIcon fontSize="small" />,
+};
 
 function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
   const id = `palette-${type}`;
@@ -30,7 +58,7 @@ function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
       }}
       ref={ref}
     >
-      <NotesIcon />
+      {FIELD_TYPE_ICONS[type]}
       <Typography variant="body2">{label}</Typography>
     </Paper>
   );
@@ -74,7 +102,7 @@ function LayoutItem({
       }}
       ref={ref}
     >
-      <ViewListIcon />
+      {LAYOUT_TYPE_ICONS[`${layoutType}-${layoutVariant}`]}
       <Typography variant="body2">{label}</Typography>
     </Paper>
   );
