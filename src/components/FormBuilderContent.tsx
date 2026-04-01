@@ -115,7 +115,7 @@ export default function FormBuilderContent() {
     setTitleFontColor(normalizeTitleFontColor(next));
   }
 
-  function handleResetTitleBackgroundColor() {
+  function handleResetTitleColors() {
     setTitleBackgroundColor(DEFAULT_TITLE_BACKGROUND_COLOR);
     setTitleFontColor(DEFAULT_TITLE_FONT_COLOR);
   }
@@ -581,7 +581,7 @@ export default function FormBuilderContent() {
                       handleTitleFontColorChange(event.target.value)
                     }
                   />
-                  <Button size="small" onClick={handleResetTitleBackgroundColor}>
+                  <Button size="small" onClick={handleResetTitleColors}>
                     重設預設色
                   </Button>
                 </Box>
