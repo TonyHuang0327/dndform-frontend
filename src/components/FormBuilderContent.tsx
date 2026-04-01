@@ -59,6 +59,9 @@ type DragOverEventArg = Parameters<
   NonNullable<DragDropEventHandlers["onDragOver"]>
 >[0];
 
+const DEFAULT_TITLE_BACKGROUND_COLOR = "#f5f5f5";
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
 export default function FormBuilderContent() {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -69,8 +72,13 @@ export default function FormBuilderContent() {
   const [jsonDialogTab, setJsonDialogTab] = useState<JsonDialogTab>("import");
   const [importJsonText, setImportJsonText] = useState("");
   const [exportJsonText, setExportJsonText] = useState("");
+  const [titleBackgroundColor, setTitleBackgroundColor] = useState(
+    DEFAULT_TITLE_BACKGROUND_COLOR
+  );
   const [importConfirmOpen, setImportConfirmOpen] = useState(false);
-  const [pendingImportText, setPendingImportText] = useState<string | null>(null);
+  const [pendingImportText, setPendingImportText] = useState<string | null>(
+    null
+  );
   const [feedback, setFeedback] = useState<{
     open: boolean;
     severity: "success" | "error" | "warning";
@@ -85,6 +93,20 @@ export default function FormBuilderContent() {
     variant: LayoutVariant | undefined | null
   ): LayoutVariant {
     return variant === "plain" ? "plain" : "labeled";
+  }
+
+  function normalizeTitleBackgroundColor(input: string): string {
+    return HEX_COLOR_PATTERN.test(input)
+      ? input
+      : DEFAULT_TITLE_BACKGROUND_COLOR;
+  }
+
+  function handleTitleBackgroundColorChange(next: string) {
+    setTitleBackgroundColor(normalizeTitleBackgroundColor(next));
+  }
+
+  function handleResetTitleBackgroundColor() {
+    setTitleBackgroundColor(DEFAULT_TITLE_BACKGROUND_COLOR);
   }
 
   function normalizeItemsWithContainerMeta(input: CanvasItem[]) {
@@ -374,7 +396,10 @@ export default function FormBuilderContent() {
     setJsonDialogOpen(true);
   }
 
-  function handleJsonDialogTabChange(_event: React.SyntheticEvent, value: JsonDialogTab) {
+  function handleJsonDialogTabChange(
+    _event: React.SyntheticEvent,
+    value: JsonDialogTab
+  ) {
     setJsonDialogTab(value);
     if (value === "export") {
       setExportJsonText(buildCurrentTemplateJson());
@@ -559,7 +584,9 @@ export default function FormBuilderContent() {
         </DragDropProvider>
       ) : (
         <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}
+          >
             <Tabs
               value={previewMode}
               onChange={(_, value: PreviewMode) => {
@@ -572,22 +599,39 @@ export default function FormBuilderContent() {
               <Tab value="document" label="文件模式" />
               <Tab value="interactive" label="表單模式" />
             </Tabs>
-            {previewMode === "document" && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => handlePrintPreview()}
-                disabled={items.length === 0}
-              >
-                列印 / 儲存為PDF
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Typography variant="body2" color="text.secondary">
+                標題背景色
+              </Typography>
+              <input
+                type="color"
+                aria-label="標題背景色"
+                value={titleBackgroundColor}
+                onChange={(event) =>
+                  handleTitleBackgroundColorChange(event.target.value)
+                }
+              />
+              <Button size="small" onClick={handleResetTitleBackgroundColor}>
+                重設預設色
               </Button>
-            )}
+              {previewMode === "document" && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handlePrintPreview()}
+                  disabled={items.length === 0}
+                >
+                  列印 / 儲存為PDF
+                </Button>
+              )}
+            </Box>
           </Box>
           <div ref={previewRef}>
             <FormPreview
               items={items}
               formTitle={formTitle}
               previewMode={previewMode}
+              titleBackgroundColor={titleBackgroundColor}
             />
           </div>
         </Box>
@@ -634,11 +678,17 @@ export default function FormBuilderContent() {
         <DialogActions>
           <Button onClick={() => setJsonDialogOpen(false)}>關閉</Button>
           {jsonDialogTab === "import" ? (
-            <Button variant="contained" onClick={() => void handleImportApply()}>
+            <Button
+              variant="contained"
+              onClick={() => void handleImportApply()}
+            >
               套用
             </Button>
           ) : (
-            <Button variant="contained" onClick={() => void handleCopyExportJson()}>
+            <Button
+              variant="contained"
+              onClick={() => void handleCopyExportJson()}
+            >
               複製 JSON
             </Button>
           )}

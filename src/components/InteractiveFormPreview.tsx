@@ -27,6 +27,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { useMemo, useState } from "react";
 
 type PrimitiveValue = string | number | boolean;
@@ -41,6 +42,7 @@ interface FlattenedFieldEntry {
 export interface InteractiveFormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
+  titleBackgroundColor: string;
 }
 
 function isInteractiveField(field: FormField): boolean {
@@ -127,6 +129,7 @@ function buildSubmitPayload(
 export default function InteractiveFormPreview({
   items,
   formTitle,
+  titleBackgroundColor,
 }: InteractiveFormPreviewProps) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({});
@@ -173,7 +176,9 @@ export default function InteractiveFormPreview({
     const errorText = fieldErrors[id];
     const hasError = Boolean(errorText);
     const span = field.span ?? 12;
-    const accessibleName = field.label?.trim() ? field.label : `未命名欄位-${id}`;
+    const accessibleName = field.label?.trim()
+      ? field.label
+      : `未命名欄位-${id}`;
 
     if (field.type === "text" || field.type === "textarea") {
       return (
@@ -314,7 +319,9 @@ export default function InteractiveFormPreview({
                   sx={{
                     p: 1,
                     borderBottom:
-                      index === selectedOcr.length - 1 ? "none" : "1px solid black",
+                      index === selectedOcr.length - 1
+                        ? "none"
+                        : "1px solid black",
                   }}
                 >
                   <Typography variant="body1">{ocr.name}</Typography>
@@ -370,9 +377,19 @@ export default function InteractiveFormPreview({
 
   return (
     <Paper variant="outlined" sx={{ p: 2, width: "70%", margin: "0 auto" }}>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-        {formTitle}
-      </Typography>
+      <Box
+        sx={{
+          mb: 2,
+          p: 1,
+          backgroundColor: alpha(titleBackgroundColor, 0.13),
+          borderLeft: `6px solid ${titleBackgroundColor}`,
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          {formTitle}
+        </Typography>
+      </Box>
 
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Grid container spacing={1}>
