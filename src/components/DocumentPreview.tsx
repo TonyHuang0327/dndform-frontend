@@ -4,7 +4,6 @@ import {
   type CanvasItem,
 } from "@/types/form";
 import {
-  Box,
   Grid,
   Typography,
 } from "@mui/material";
@@ -14,12 +13,14 @@ export interface DocumentPreviewProps {
   items: CanvasItem[];
   formTitle: string;
   titleBackgroundColor: string;
+  titleFontColor: string;
 }
 
 export default function DocumentPreview({
   items,
   formTitle,
   titleBackgroundColor,
+  titleFontColor,
 }: DocumentPreviewProps) {
   return (
     <Grid
@@ -44,7 +45,7 @@ export default function DocumentPreview({
           textAlign: "center",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: titleFontColor }}>
           {formTitle}
         </Typography>
       </Grid>
@@ -52,6 +53,7 @@ export default function DocumentPreview({
       <DocumentPreviewRows
         items={items}
         titleBackgroundColor={titleBackgroundColor}
+        titleFontColor={titleFontColor}
       />
     </Grid>
   );

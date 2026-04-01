@@ -43,6 +43,7 @@ export interface InteractiveFormPreviewProps {
   items: CanvasItem[];
   formTitle: string;
   titleBackgroundColor: string;
+  titleFontColor: string;
 }
 
 function isInteractiveField(field: FormField): boolean {
@@ -130,6 +131,7 @@ export default function InteractiveFormPreview({
   items,
   formTitle,
   titleBackgroundColor,
+  titleFontColor,
 }: InteractiveFormPreviewProps) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({});
@@ -335,7 +337,7 @@ export default function InteractiveFormPreview({
 
     return (
       <Grid key={id} size={span}>
-        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+        <Typography variant="body1" sx={{ fontWeight: "bold", color: titleFontColor }}>
           {field.label}
         </Typography>
       </Grid>
@@ -386,7 +388,7 @@ export default function InteractiveFormPreview({
           borderRadius: 1,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: titleFontColor }}>
           {formTitle}
         </Typography>
       </Box>
@@ -409,7 +411,7 @@ export default function InteractiveFormPreview({
                           {!plain && (
                             <Typography
                               variant="body1"
-                              sx={{ mb: 1, fontWeight: "bold" }}
+                              sx={{ mb: 1, fontWeight: "bold", color: titleFontColor }}
                             >
                               {col.label?.trim()
                                 ? col.label

@@ -15,12 +15,14 @@ export interface FieldBodyProps {
   field: FormField;
   ariaLabel: string;
   titleBackgroundColor: string;
+  titleFontColor: string;
 }
 
 export function FieldBody({
   field,
   ariaLabel,
   titleBackgroundColor,
+  titleFontColor,
 }: FieldBodyProps) {
   if (
     field.type === "text" ||
@@ -149,6 +151,7 @@ export function FieldBody({
           width: "100%",
           display: "flex",
           alignItems: "center",
+          color: titleFontColor,
         }}
       >
         {field.label?.trim() ? field.label : "未命名欄位"}
