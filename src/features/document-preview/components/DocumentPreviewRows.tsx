@@ -11,6 +11,7 @@ import {
 } from "@/features/document-preview/helpers";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import { FieldBody } from "./FieldBody";
+import { alpha } from "@mui/material/styles";
 
 interface DocumentPreviewRowsProps {
   items: CanvasItem[];
@@ -34,7 +35,7 @@ export function DocumentPreviewRows({
         sx={{
           borderRight: "1px solid black",
           borderBottom: "1px solid black",
-          backgroundColor: "grey",
+          backgroundColor: alpha(titleBackgroundColor, 0.13),
         }}
       />
     );

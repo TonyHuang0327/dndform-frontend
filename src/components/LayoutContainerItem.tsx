@@ -175,7 +175,7 @@ export default function LayoutContainerItem({
         <DragIndicatorIcon fontSize="small" />
       </IconButton>
       {container.columns.map((col) => (
-        <Grid key={col.id} size={col.span}>
+        <Box key={col.id} sx={{ flex: 1 }}>
           <ColumnSlot
             isPlain={plain}
             containerId={container.id}
@@ -188,7 +188,7 @@ export default function LayoutContainerItem({
             onChange={onChange}
             onChangeColumnLabel={onChangeColumnLabel}
           />
-        </Grid>
+        </Box>
       ))}
       <IconButton
         size="small"

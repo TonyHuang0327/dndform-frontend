@@ -27,6 +27,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { useMemo, useState } from "react";
 
 type PrimitiveValue = string | number | boolean;
@@ -175,7 +176,9 @@ export default function InteractiveFormPreview({
     const errorText = fieldErrors[id];
     const hasError = Boolean(errorText);
     const span = field.span ?? 12;
-    const accessibleName = field.label?.trim() ? field.label : `未命名欄位-${id}`;
+    const accessibleName = field.label?.trim()
+      ? field.label
+      : `未命名欄位-${id}`;
 
     if (field.type === "text" || field.type === "textarea") {
       return (
@@ -316,7 +319,9 @@ export default function InteractiveFormPreview({
                   sx={{
                     p: 1,
                     borderBottom:
-                      index === selectedOcr.length - 1 ? "none" : "1px solid black",
+                      index === selectedOcr.length - 1
+                        ? "none"
+                        : "1px solid black",
                   }}
                 >
                   <Typography variant="body1">{ocr.name}</Typography>
@@ -376,7 +381,7 @@ export default function InteractiveFormPreview({
         sx={{
           mb: 2,
           p: 1,
-          backgroundColor: `${titleBackgroundColor}22`,
+          backgroundColor: alpha(titleBackgroundColor, 0.13),
           borderLeft: `6px solid ${titleBackgroundColor}`,
           borderRadius: 1,
         }}

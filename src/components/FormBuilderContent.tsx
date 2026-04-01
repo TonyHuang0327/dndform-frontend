@@ -76,7 +76,9 @@ export default function FormBuilderContent() {
     DEFAULT_TITLE_BACKGROUND_COLOR
   );
   const [importConfirmOpen, setImportConfirmOpen] = useState(false);
-  const [pendingImportText, setPendingImportText] = useState<string | null>(null);
+  const [pendingImportText, setPendingImportText] = useState<string | null>(
+    null
+  );
   const [feedback, setFeedback] = useState<{
     open: boolean;
     severity: "success" | "error" | "warning";
@@ -94,7 +96,9 @@ export default function FormBuilderContent() {
   }
 
   function normalizeTitleBackgroundColor(input: string): string {
-    return HEX_COLOR_PATTERN.test(input) ? input : DEFAULT_TITLE_BACKGROUND_COLOR;
+    return HEX_COLOR_PATTERN.test(input)
+      ? input
+      : DEFAULT_TITLE_BACKGROUND_COLOR;
   }
 
   function handleTitleBackgroundColorChange(next: string) {
@@ -392,7 +396,10 @@ export default function FormBuilderContent() {
     setJsonDialogOpen(true);
   }
 
-  function handleJsonDialogTabChange(_event: React.SyntheticEvent, value: JsonDialogTab) {
+  function handleJsonDialogTabChange(
+    _event: React.SyntheticEvent,
+    value: JsonDialogTab
+  ) {
     setJsonDialogTab(value);
     if (value === "export") {
       setExportJsonText(buildCurrentTemplateJson());
@@ -577,7 +584,9 @@ export default function FormBuilderContent() {
         </DragDropProvider>
       ) : (
         <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}
+          >
             <Tabs
               value={previewMode}
               onChange={(_, value: PreviewMode) => {
@@ -597,7 +606,7 @@ export default function FormBuilderContent() {
               <input
                 type="color"
                 aria-label="標題背景色"
-                value={normalizeTitleBackgroundColor(titleBackgroundColor)}
+                value={titleBackgroundColor}
                 onChange={(event) =>
                   handleTitleBackgroundColorChange(event.target.value)
                 }
@@ -622,9 +631,7 @@ export default function FormBuilderContent() {
               items={items}
               formTitle={formTitle}
               previewMode={previewMode}
-              titleBackgroundColor={normalizeTitleBackgroundColor(
-                titleBackgroundColor
-              )}
+              titleBackgroundColor={titleBackgroundColor}
             />
           </div>
         </Box>
@@ -671,11 +678,17 @@ export default function FormBuilderContent() {
         <DialogActions>
           <Button onClick={() => setJsonDialogOpen(false)}>關閉</Button>
           {jsonDialogTab === "import" ? (
-            <Button variant="contained" onClick={() => void handleImportApply()}>
+            <Button
+              variant="contained"
+              onClick={() => void handleImportApply()}
+            >
               套用
             </Button>
           ) : (
-            <Button variant="contained" onClick={() => void handleCopyExportJson()}>
+            <Button
+              variant="contained"
+              onClick={() => void handleCopyExportJson()}
+            >
               複製 JSON
             </Button>
           )}
