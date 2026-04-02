@@ -7,9 +7,19 @@ import {
   type LayoutVariant,
 } from "@/types/form";
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import NotesIcon from "@mui/icons-material/Notes";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import VerticalSplitIcon from "@mui/icons-material/VerticalSplit";
 import { useDraggable } from "@dnd-kit/react";
+import { FIELD_TYPE_ICONS } from "@/components/fieldTypeIcons";
+
+type LayoutIconKey = `${LayoutType}-${LayoutVariant}`;
+
+const LAYOUT_TYPE_ICONS: Record<LayoutIconKey, React.ReactNode> = {
+  "1col-labeled": <ViewListIcon fontSize="small" />,
+  "2col-labeled": <VerticalSplitIcon fontSize="small" />,
+  "1col-plain": <ViewListIcon fontSize="small" />,
+  "2col-plain": <VerticalSplitIcon fontSize="small" />,
+};
 
 function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
   const id = `palette-${type}`;
@@ -30,7 +40,7 @@ function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
       }}
       ref={ref}
     >
-      <NotesIcon />
+      {FIELD_TYPE_ICONS[type]}
       <Typography variant="body2">{label}</Typography>
     </Paper>
   );
@@ -74,7 +84,7 @@ function LayoutItem({
       }}
       ref={ref}
     >
-      <ViewListIcon />
+      {LAYOUT_TYPE_ICONS[`${layoutType}-${layoutVariant}`]}
       <Typography variant="body2">{label}</Typography>
     </Paper>
   );

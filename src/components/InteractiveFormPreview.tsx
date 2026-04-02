@@ -27,7 +27,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { useMemo, useState } from "react";
 
 type PrimitiveValue = string | number | boolean;
@@ -310,9 +309,18 @@ export default function InteractiveFormPreview({
       return (
         <Grid key={id} size={span}>
           {selectedOcr.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              尚未選擇 OCR
-            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+                p: 1,
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                尚未選擇 OCR
+              </Typography>
+            </Box>
           ) : (
             <Box>
               {selectedOcr.map((ocr, index) => (
@@ -337,7 +345,17 @@ export default function InteractiveFormPreview({
 
     return (
       <Grid key={id} size={span}>
-        <Typography variant="body1" sx={{ fontWeight: "bold", color: titleFontColor }}>
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: "bold",
+            color: titleFontColor,
+            p: 1,
+            backgroundColor: titleBackgroundColor,
+            borderRadius: 1,
+            width: "fit-content",
+          }}
+        >
           {field.label}
         </Typography>
       </Grid>
@@ -383,12 +401,19 @@ export default function InteractiveFormPreview({
         sx={{
           mb: 2,
           p: 1,
-          backgroundColor: alpha(titleBackgroundColor, 0.13),
-          borderLeft: `6px solid ${titleBackgroundColor}`,
+          backgroundColor: titleBackgroundColor,
           borderRadius: 1,
+          width: "100%",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: titleFontColor }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+            color: titleFontColor,
+            textAlign: "center",
+          }}
+        >
           {formTitle}
         </Typography>
       </Box>
@@ -411,7 +436,15 @@ export default function InteractiveFormPreview({
                           {!plain && (
                             <Typography
                               variant="body1"
-                              sx={{ mb: 1, fontWeight: "bold", color: titleFontColor }}
+                              sx={{
+                                mb: 1,
+                                fontWeight: "bold",
+                                color: titleFontColor,
+                                p: 1,
+                                backgroundColor: titleBackgroundColor,
+                                borderRadius: 1,
+                                width: "fit-content",
+                              }}
                             >
                               {col.label?.trim()
                                 ? col.label
@@ -423,7 +456,7 @@ export default function InteractiveFormPreview({
                               disabled
                               fullWidth
                               value=""
-                              placeholder="此欄暫無可填欄位"
+                              placeholder="尚未加入元件"
                               variant="outlined"
                             />
                           ) : (
