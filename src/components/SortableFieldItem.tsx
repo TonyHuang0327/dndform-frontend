@@ -107,10 +107,9 @@ export default function SortableFieldItem({
         gap: 1,
         opacity: isDragging ? 0.6 : 1,
         width: "100%",
-        borderLeft:
-          field.type === "labeled-input"
-            ? `6px solid ${titleBackgroundColor}`
-            : "none",
+        ...(field.type === "labeled-input" && {
+          borderLeft: `6px solid ${titleBackgroundColor}`,
+        }),
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}

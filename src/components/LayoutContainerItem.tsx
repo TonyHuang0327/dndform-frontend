@@ -164,7 +164,7 @@ export default function LayoutContainerItem({
         display: "flex",
         alignItems: "center",
         gap: 1,
-        borderLeft: plain ? `none` : `6px solid ${titleBackgroundColor}`,
+        ...(plain ? {} : { borderLeft: `6px solid ${titleBackgroundColor}` }),
       }}
     >
       {/* 格子區域（橫向排列） */}
