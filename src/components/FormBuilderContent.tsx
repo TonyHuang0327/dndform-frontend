@@ -63,6 +63,64 @@ const DEFAULT_TITLE_BACKGROUND_COLOR = "#f5f5f5";
 const DEFAULT_TITLE_FONT_COLOR = "#111111";
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
+/** 標題背景／文字色控制（設計與預覽共用同一組 state） */
+function TitleColorToolbar({
+  titleBackgroundColor,
+  titleFontColor,
+  onBackgroundChange,
+  onFontChange,
+  onReset,
+}: {
+  titleBackgroundColor: string;
+  titleFontColor: string;
+  onBackgroundChange: (value: string) => void;
+  onFontChange: (value: string) => void;
+  onReset: () => void;
+}) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 1,
+        p: 1.5,
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 1,
+      }}
+    >
+      <Typography variant="body2" color="text.secondary">
+        標題色彩設定
+      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+        <Typography variant="body2" color="text.secondary">
+          標題背景色
+        </Typography>
+        <input
+          type="color"
+          aria-label="標題背景色"
+          value={titleBackgroundColor}
+          onChange={(event) => onBackgroundChange(event.target.value)}
+        />
+        <Typography variant="body2" color="text.secondary">
+          標題文字色
+        </Typography>
+        <input
+          type="color"
+          aria-label="標題文字色"
+          value={titleFontColor}
+          onChange={(event) => onFontChange(event.target.value)}
+        />
+        <Button size="small" onClick={onReset}>
+          重設預設色
+        </Button>
+      </Box>
+    </Box>
+  );
+}
+
 export default function FormBuilderContent() {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -584,48 +642,13 @@ export default function FormBuilderContent() {
                 gap: 2,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  p: 1.5,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 1,
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  標題色彩設定
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    標題背景色
-                  </Typography>
-                  <input
-                    type="color"
-                    aria-label="標題背景色"
-                    value={titleBackgroundColor}
-                    onChange={(event) =>
-                      handleTitleBackgroundColorChange(event.target.value)
-                    }
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    標題文字色
-                  </Typography>
-                  <input
-                    type="color"
-                    aria-label="標題文字色"
-                    value={titleFontColor}
-                    onChange={(event) =>
-                      handleTitleFontColorChange(event.target.value)
-                    }
-                  />
-                  <Button size="small" onClick={handleResetTitleColors}>
-                    重設預設色
-                  </Button>
-                </Box>
-              </Box>
+              <TitleColorToolbar
+                titleBackgroundColor={titleBackgroundColor}
+                titleFontColor={titleFontColor}
+                onBackgroundChange={handleTitleBackgroundColorChange}
+                onFontChange={handleTitleFontColorChange}
+                onReset={handleResetTitleColors}
+              />
               <FormCanvas
                 items={items}
                 selectedId={selectedId}
@@ -635,6 +658,7 @@ export default function FormBuilderContent() {
                 onChangeColumnLabel={handleChangeColumnLabel}
                 formTitle={formTitle}
                 onChangeFormTitle={setFormTitle}
+                titleBackgroundColor={titleBackgroundColor}
               />
             </Box>
           </Box>
@@ -677,6 +701,13 @@ export default function FormBuilderContent() {
         </DragDropProvider>
       ) : (
         <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <TitleColorToolbar
+            titleBackgroundColor={titleBackgroundColor}
+            titleFontColor={titleFontColor}
+            onBackgroundChange={handleTitleBackgroundColorChange}
+            onFontChange={handleTitleFontColorChange}
+            onReset={handleResetTitleColors}
+          />
           <div ref={previewRef}>
             <FormPreview
               items={items}

@@ -7,28 +7,10 @@ import {
   type LayoutVariant,
 } from "@/types/form";
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import ViewListIcon from '@mui/icons-material/ViewList';
-import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
+import ViewListIcon from "@mui/icons-material/ViewList";
+import VerticalSplitIcon from "@mui/icons-material/VerticalSplit";
 import { useDraggable } from "@dnd-kit/react";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import SubjectIcon from "@mui/icons-material/Subject";
-import PinIcon from "@mui/icons-material/Pin";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import ArrowDropDownCircleIcon from "@mui/icons-material/ArrowDropDownCircle";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import TitleIcon from "@mui/icons-material/Title";
-
-const FIELD_TYPE_ICONS: Record<FormFieldType, React.ReactNode> = {
-  text: <TextFieldsIcon fontSize="small" />,
-  textarea: <SubjectIcon fontSize="small" />,
-  number: <PinIcon fontSize="small" />,
-  checkbox: <CheckBoxIcon fontSize="small" />,
-  radio: <RadioButtonCheckedIcon fontSize="small" />,
-  select: <ArrowDropDownCircleIcon fontSize="small" />,
-  "ocr-list": <DocumentScannerIcon fontSize="small" />,
-  "labeled-input": <TitleIcon fontSize="small" />,
-};
+import { FIELD_TYPE_ICONS } from "@/components/fieldTypeIcons";
 
 type LayoutIconKey = `${LayoutType}-${LayoutVariant}`;
 

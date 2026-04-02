@@ -22,6 +22,7 @@ export interface FormCanvasProps {
   ) => void;
   formTitle: string;
   onChangeFormTitle: (title: string) => void;
+  titleBackgroundColor: string;
 }
 
 export default function FormCanvas({
@@ -33,6 +34,7 @@ export default function FormCanvas({
   onChangeColumnLabel,
   formTitle,
   onChangeFormTitle,
+  titleBackgroundColor,
 }: FormCanvasProps) {
   const { ref, isDropTarget } = useDroppable({ id: CANVAS_ID });
 
@@ -79,6 +81,7 @@ export default function FormCanvas({
                   onChange={onChange}
                   onChangeColumnLabel={onChangeColumnLabel}
                   index={index}
+                  titleBackgroundColor={titleBackgroundColor}
                 />
               ) : (
                 <SortableFieldItem
@@ -88,6 +91,7 @@ export default function FormCanvas({
                   onSelect={onSelect}
                   onDelete={onDelete}
                   onChange={onChange}
+                  titleBackgroundColor={titleBackgroundColor}
                 />
               )}
             </Grid>

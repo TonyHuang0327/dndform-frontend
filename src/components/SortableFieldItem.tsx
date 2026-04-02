@@ -14,6 +14,7 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DeleteIconOutlined from "@mui/icons-material/DeleteOutlined";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { DEFAULT_LABELS } from "@/types/form";
+import { FIELD_TYPE_ICONS } from "@/components/fieldTypeIcons";
 
 const CANVAS_ID = "canvas";
 
@@ -25,6 +26,7 @@ export interface SortableFieldItemProps {
   onDelete: (id: string) => void;
   onChange: (id: string, patch: Partial<FormField>) => void;
   disableResize?: boolean; // 在容器格子內傳入 true 以停用右側 resize handle
+  titleBackgroundColor: string;
 }
 
 export default function SortableFieldItem({
@@ -35,6 +37,7 @@ export default function SortableFieldItem({
   onDelete,
   onChange,
   disableResize = false,
+  titleBackgroundColor,
 }: SortableFieldItemProps) {
   const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
     id: field.id,
@@ -104,6 +107,10 @@ export default function SortableFieldItem({
         gap: 1,
         opacity: isDragging ? 0.6 : 1,
         width: "100%",
+        borderLeft:
+          field.type === "labeled-input"
+            ? `6px solid ${titleBackgroundColor}`
+            : "none",
       }}
     >
       {/* 拖拉把手：只有此區可拖動排序 */}
@@ -125,9 +132,13 @@ export default function SortableFieldItem({
             flex: 1,
             display: "flex",
             alignItems: "center",
+            gap: 1,
             minWidth: 0,
           }}
         >
+          <Box sx={{ color: "text.secondary", display: "flex" }}>
+            {FIELD_TYPE_ICONS[field.type]}
+          </Box>
           <TextField
             value={field.label}
             onChange={(e) => onChange(field.id, { label: e.target.value })}
@@ -149,11 +160,16 @@ export default function SortableFieldItem({
           sx={{
             flex: 1,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 1,
             textAlign: "left",
           }}
         >
+          <Box sx={{ color: "text.secondary", display: "flex" }}>
+            {FIELD_TYPE_ICONS[field.type]}
+          </Box>
           <Typography variant="body1">{DEFAULT_LABELS[field.type]}</Typography>
         </ButtonBase>
       )}

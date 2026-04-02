@@ -33,6 +33,7 @@ export interface LayoutContainerItemProps {
     columnId: string,
     label: string
   ) => void;
+  titleBackgroundColor: string;
 }
 
 type ColumnSlotProps = {
@@ -50,6 +51,7 @@ type ColumnSlotProps = {
     columnId: string,
     label: string
   ) => void;
+  titleBackgroundColor: string;
 };
 function ColumnSlot({
   isPlain,
@@ -62,6 +64,7 @@ function ColumnSlot({
   onDelete,
   onChange,
   onChangeColumnLabel,
+  titleBackgroundColor,
 }: ColumnSlotProps) {
   const { ref, isDropTarget } = useDroppable({ id: columnId });
 
@@ -119,6 +122,7 @@ function ColumnSlot({
               onDelete={onDelete}
               onChange={onChange}
               disableResize
+              titleBackgroundColor={titleBackgroundColor}
             />
           ))
         )}
@@ -135,6 +139,7 @@ export default function LayoutContainerItem({
   onDelete,
   onChange,
   onChangeColumnLabel,
+  titleBackgroundColor,
 }: LayoutContainerItemProps) {
   const plain = isPlainLayout(container);
   const { isDragging, ref, handleRef, sourceRef, targetRef } = useSortable({
@@ -159,6 +164,7 @@ export default function LayoutContainerItem({
         display: "flex",
         alignItems: "center",
         gap: 1,
+        borderLeft: plain ? `none` : `6px solid ${titleBackgroundColor}`,
       }}
     >
       {/* 格子區域（橫向排列） */}
@@ -186,6 +192,7 @@ export default function LayoutContainerItem({
             onDelete={onDelete}
             onChange={onChange}
             onChangeColumnLabel={onChangeColumnLabel}
+            titleBackgroundColor={titleBackgroundColor}
           />
         </Box>
       ))}

@@ -116,9 +116,18 @@ export function FieldBody({
     const selectedOcr = field.selectedOcr ?? [];
     if (selectedOcr.length === 0) {
       return (
-        <Typography variant="body2" color="text.secondary">
-          尚未選擇 OCR
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+            p: 1,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            尚未選擇 OCR
+          </Typography>
+        </Box>
       );
     }
 
