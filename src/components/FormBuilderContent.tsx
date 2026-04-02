@@ -63,6 +63,13 @@ const DEFAULT_TITLE_BACKGROUND_COLOR = "#f5f5f5";
 const DEFAULT_TITLE_FONT_COLOR = "#111111";
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
+/**
+ * Render the form builder UI that provides canvas design, preview modes, drag-and-drop editing, field property editing, and JSON import/export with feedback.
+ *
+ * The component maintains canvas items, selection, modes (design/preview), preview sub-mode (document/interactive), title styling, JSON dialog state, import confirmation, and snackbar feedback. It exposes controls for creating and reordering fields and layout containers via drag-and-drop, editing field and column properties, printing the preview, importing/exporting templates (with validation and normalization), and copying/exporting JSON.
+ *
+ * @returns The React element tree for the form builder interface.
+ */
 export default function FormBuilderContent() {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);

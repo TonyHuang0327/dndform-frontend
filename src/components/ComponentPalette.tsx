@@ -39,6 +39,16 @@ const LAYOUT_TYPE_ICONS: Record<LayoutIconKey, React.ReactNode> = {
   "2col-plain": <VerticalSplitIcon fontSize="small" />,
 };
 
+/**
+ * Render a draggable palette item representing a form field type.
+ *
+ * The item shows an icon for the given field `type`, displays `label`, and
+ * exposes drag data identifying the field type and the `"palette"` source.
+ *
+ * @param type - The form field type to represent and include in drag data
+ * @param label - The visible label shown next to the icon
+ * @returns A React element for a draggable palette item
+ */
 function PaletteItem({ type, label }: { type: FormFieldType; label: string }) {
   const id = `palette-${type}`;
   const { ref } = useDraggable({
@@ -75,6 +85,14 @@ const LAYOUT_TYPE_DEFINITIONS: {
   { layoutType: "2col", layoutVariant: "plain", label: "無標題雙欄" },
 ];
 
+/**
+ * Draggable palette item that represents a layout option.
+ *
+ * @param layoutType - The layout type (for example `"1col"` or `"2col"`).
+ * @param layoutVariant - The layout variant (for example `"labeled"` or `"plain"`).
+ * @param label - Text label displayed next to the layout icon in the palette.
+ * @returns A React element rendering a draggable Paper item for the specified layout option.
+ */
 function LayoutItem({
   layoutType,
   layoutVariant,

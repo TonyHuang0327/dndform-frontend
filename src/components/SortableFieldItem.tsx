@@ -27,6 +27,19 @@ export interface SortableFieldItemProps {
   disableResize?: boolean; // 在容器格子內傳入 true 以停用右側 resize handle
 }
 
+/**
+ * Renders a draggable, deletable, and optionally resizable form field card used inside a sortable canvas.
+ *
+ * The card includes a left drag handle for reordering, a central content area that either shows an editable
+ * label input (for `labeled-input` fields) or a selectable preview, a delete button, and — unless
+ * `disableResize` is true — a right-side vertical handle that adjusts the field's `span` in discrete steps.
+ *
+ * @param onSelect - Called with the field id when the card body is clicked to select the field.
+ * @param onDelete - Called with the field id to remove the field.
+ * @param onChange - Called as `onChange(fieldId, changes)` to apply partial updates to the field (e.g., `{ span: 8 }` or `{ label: 'Title' }`).
+ * @param disableResize - When `true`, hides and disables the right-side resize handle; when `false`, enables mouse-drag resizing that updates the field's `span` clamped between 3 and 12.
+ * @returns The rendered sortable field item element.
+ */
 export default function SortableFieldItem({
   field,
   index,
