@@ -1,9 +1,13 @@
-import type { FormField } from "@/types/form";
+import type { CanvasItem } from "@/types/form";
 
 export interface FormSchema {
-  id: string;
-  name: string;
-  fields: FormField[];
+  schemaVersion: number;
+  meta: {
+    exportedAt: string;
+    source: string;
+  };
+  formTitle: string;
+  items: CanvasItem[];
 }
 
 export type FormFillValue =
