@@ -1,12 +1,15 @@
 "use client";
 
+import CreateTemplateDialog from "@/components/template-list/CreateTemplateDialog";
 import { useTemplateList } from "@/queries/use-template-list";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -14,6 +17,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 function formatUpdatedAt(iso: string) {
   try {
@@ -28,12 +32,39 @@ function formatUpdatedAt(iso: string) {
 
 export default function TemplateListPage() {
   const { data, isPending, isError, error, isSuccess } = useTemplateList();
+  const [createOpen, setCreateOpen] = useState(false);
+  /** 每次開啟對話框遞增，強制重掛以重設表單與 mutation 狀態 */
+  const [createDialogKey, setCreateDialogKey] = useState(0);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        表單模板列表
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={2}
+        sx={{ mb: 3 }}
+      >
+        <Typography variant="h4" component="h1">
+          表單模板列表
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setCreateDialogKey((k) => k + 1);
+            setCreateOpen(true);
+          }}
+          disabled={isPending}
+        >
+          新增模板
+        </Button>
+      </Stack>
+
+      <CreateTemplateDialog
+        key={createDialogKey}
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
 
       {isPending && (
         <Box display="flex" justifyContent="center" py={6}>
