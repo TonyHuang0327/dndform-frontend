@@ -1,11 +1,11 @@
-import { http, HttpResponse } from 'msw'
- 
+import { http, HttpResponse } from "msw";
+import { buildTemplateList } from "./factories/template-list.factory";
+
 export const handlers = [
-  http.get('https://api.example.com/user', () => {
-    return HttpResponse.json({
-      id: 'abc-123',
-      firstName: 'John',
-      lastName: 'Maverick',
-    })
+  http.get(({ request }) => {
+    const url = new URL(request.url);
+    return request.method === "GET" && url.pathname.endsWith("/template");
+  }, () => {
+    return HttpResponse.json(buildTemplateList(10));
   }),
-]
+];
